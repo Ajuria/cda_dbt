@@ -32,3 +32,4 @@ seeds:
   cda_dbt:
     +schema: cda_pipeline
     +quote_columns: false
+
