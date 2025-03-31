@@ -18,4 +18,11 @@ clean-targets:
 
 models:
   cda_dbt:
+    +schema: cda_pipeline
     +materialized: table
+
+seeds:
+  cda_dbt:
+    +schema: cda_pipeline
+    +quote_columns: false
+
