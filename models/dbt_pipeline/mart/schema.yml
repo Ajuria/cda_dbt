@@ -1,0 +1,51 @@
+# ──────────────────────────────────────────────
+# MART MODELS
+# ──────────────────────────────────────────────
+
+- name: mart_user__event_behavior
+  description: "Summarizes how each user interacts with events: attendance and interaction counts."
+  columns:
+    - name: user_id
+      description: "Unique identifier of the user."
+      tests:
+        - not_null
+    - name: total_event_attended
+      description: "Number of events attended by the user."
+    - name: total_interactions
+      description: "Number of interactions performed by the user."
+
+- name: mart_event__engagement_summary
+  description: "Summarizes engagement per event: interactions and attendance counts."
+  columns:
+    - name: event_id
+      description: "Unique identifier of the event."
+      tests:
+        - not_null
+    - name: total_interactions
+      description: "Number of interactions related to the event."
+    - name: total_attendance
+      description: "Number of users who attended the event."
+
+- name: mart_brand__performance_summary
+  description: "Aggregated performance of each brand across sessions, interactions and transactions."
+  columns:
+    - name: brand_id
+      description: "Unique brand identifier."
+      tests:
+        - not_null
+    - name: total_sessions
+      description: "Number of sessions associated with the brand."
+    - name: total_interactions
+      description: "Number of interactions tied to the brand."
+    - name: total_transactions
+      description: "Total number of transactions related to the brand."
+
+- name: mart_revenue__by_event
+  description: "Revenue totals linked to events and brands."
+  columns:
+    - name: event_id
+      description: "ID of the event (can be NULL if transaction isn't tied to an event)."
+    - name: brand_id
+      description: "ID of the brand associated with the event."
+    - name: total_revenue_eur
+      description: "Sum of revenue from all payment sources (HelloAsso, partners, etc.)"
