@@ -20,9 +20,15 @@ models:
   cda_dbt:
     +schema: cda_pipeline
     +materialized: table
+    dbt_pipeline:
+      staging:
+        +materialized: view
+      intermediate:
+        +materialized: view
+      mart:
+        +materialized: table
 
 seeds:
   cda_dbt:
     +schema: cda_pipeline
     +quote_columns: false
-
