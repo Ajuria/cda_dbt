@@ -11,4 +11,4 @@ SELECT
     form_id,
     organization_id,
     brand_id
-FROM `cda-database.cda_api.helloasso_payment`
+FROM `cda-database.cda_api.payments`

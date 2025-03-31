@@ -8,5 +8,5 @@ SELECT
     post_modified,
     post_parent,
     post_author                 AS user_id
-FROM {{ source('wordpress', 'posts') }}
-WHERE post_type = 'event'
+FROM `cda-database`.`cda_owned`.`wp_posts`
+WHERE type = 'event'

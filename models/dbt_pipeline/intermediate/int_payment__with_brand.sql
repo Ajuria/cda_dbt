@@ -11,7 +11,7 @@ WITH base_payment AS (
         user_id,
         art_show_id,
         event_id
-    FROM {{ ref('stg_helloasso__payments') }}
+    FROM {{ ref('stg_cda_api__helloasso_payment') }}
 ),
 
 brand_mapping AS (

@@ -1,8 +1,0 @@
-version: 2
-
-sources:
-  - name: dbt_jdeajuriaguerra_cda_pipeline
-    database: cda-database
-    schema: dbt_jdeajuriaguerra_cda_pipeline
-    tables:
-      - name: seed_art_show__brand_mapping
