@@ -18,8 +18,15 @@ clean-targets:
 
 models:
   cda_dbt:
-    +materialized: table
     +schema: cda_pipeline
+    +materialized: table
+    dbt_pipeline:
+      staging:
+        +materialized: view
+      intermediate:
+        +materialized: view
+      mart:
+        +materialized: table
 
 seeds:
   cda_dbt:
