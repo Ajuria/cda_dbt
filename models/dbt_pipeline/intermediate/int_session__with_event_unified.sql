@@ -1,5 +1,3 @@
--- models/dbt_pipeline/intermediate/int_session__with_event_unified.sql
-
 WITH base_session AS (
     SELECT
         session_id,
@@ -12,7 +10,7 @@ WITH base_session AS (
         geo_name,
         started_at,
         ended_at
-    FROM {{ ref('stg_wp__sessions') }}
+    FROM {{ ref('stg_cda_owned__session') }}
 ),
 
 event_attendance AS (
@@ -20,7 +18,7 @@ event_attendance AS (
         session_id,
         event_id,
         attended_at
-    FROM {{ ref('stg_cda__event_attendance') }}
+    FROM {{ ref('stg_cda_owned__event_attendance') }}
 ),
 
 interactions AS (
@@ -29,7 +27,7 @@ interactions AS (
         interaction_type,
         target_id,
         timestamp AS interaction_ts
-    FROM {{ ref('stg_wp__interactions') }}
+    FROM {{ ref('stg_cda_owned__interaction') }}
 )
 
 SELECT

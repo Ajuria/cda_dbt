@@ -4,7 +4,6 @@ SELECT
     MIN(timestamp)            AS first_interaction_at,
     MAX(timestamp)            AS last_interaction_at
 
-FROM {{ ref('stg_wp__interactions') }}
+FROM {{ ref('stg_cda_owned__interaction') }}
 
-GROUP BY
-    user_id
+GROUP BY user_id

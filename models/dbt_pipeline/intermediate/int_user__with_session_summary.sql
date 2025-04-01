@@ -8,7 +8,7 @@ SELECT
     MAX(s.ended_at)                AS last_session_at
 
 FROM {{ ref('stg_wp__users') }} u
-LEFT JOIN {{ ref('stg_wp__sessions') }} s
+LEFT JOIN {{ ref('stg_cda_owned__session') }} s
     ON u.user_id = s.user_id
 
 GROUP BY
@@ -16,3 +16,4 @@ GROUP BY
     u.user_email,
     u.user_name,
     u.user_created_at
+

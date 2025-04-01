@@ -6,6 +6,6 @@ SELECT
     COUNTIF(EXTRACT(HOUR FROM s.started_at) BETWEEN 0 AND 6) AS night_sessions,
     COUNTIF(device = 'mobile')            AS mobile_sessions,
     COUNTIF(device = 'desktop')           AS desktop_sessions
-FROM {{ ref('stg_wp__sessions') }} s
+FROM ref('stg_cda_owned__session')
 WHERE s.user_id IS NOT NULL
 GROUP BY s.user_id

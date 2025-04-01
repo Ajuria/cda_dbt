@@ -6,6 +6,6 @@ SELECT
     COUNTIF(i.interaction_type = 'view')          AS total_views,
     MIN(i.timestamp)                              AS first_interaction,
     MAX(i.timestamp)                              AS last_interaction
-FROM {{ ref('stg_wp__interactions') }} i
+FROM {{ ref('stg_cda_owned__interaction') }}
 WHERE i.user_id IS NOT NULL
 GROUP BY i.user_id

@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: cda_api
+    database: cda-database
+    schema: cda_api
+    tables:
+      - name: payments
+
+models:
+  - name: stg_cda_api__payments

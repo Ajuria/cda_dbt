@@ -7,7 +7,7 @@ profile: 'default'
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
-seed-paths: ["seeds"]
+seed-paths: ["seeds"]  # Ensure this points to the right folder
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
@@ -20,6 +20,7 @@ models:
   cda_dbt:
     +schema: cda_pipeline
     +materialized: table
+
     dbt_pipeline:
       staging:
         +materialized: view
@@ -28,8 +29,10 @@ models:
       mart:
         +materialized: table
 
+    _disabled:
+      +enabled: false
+
 seeds:
   cda_dbt:
-    +schema: cda_pipeline
-    +quote_columns: false
-
+    seed_art_show__brand_mapping:
+      path: seeds/seed_art_show__brand_mapping.csv
