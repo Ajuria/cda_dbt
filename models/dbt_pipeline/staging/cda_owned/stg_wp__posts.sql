@@ -1,5 +1,5 @@
 SELECT
-    ID AS user_id,
+    ID              AS user_id,
     user_login,
     user_email,
     user_registered
