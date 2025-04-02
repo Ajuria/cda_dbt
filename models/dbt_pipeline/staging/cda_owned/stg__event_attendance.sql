@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 SELECT
     event_attendance_id,
     event_id,

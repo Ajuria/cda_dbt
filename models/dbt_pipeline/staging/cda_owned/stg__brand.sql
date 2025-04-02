@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 SELECT
     id             AS brand_id,
     title          AS brand_name,

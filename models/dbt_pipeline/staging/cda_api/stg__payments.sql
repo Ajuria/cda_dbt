@@ -1,5 +1,7 @@
 -- models/dbt_pipeline/staging/stg_cda_api__helloasso_payment.sql
 
+{{ config(materialized='view') }}
+
 SELECT
     id                              AS payment_id,
     SAFE_CAST(amount AS FLOAT64)    AS amount,

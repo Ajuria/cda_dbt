@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 SELECT
     session_id,
     source_platform,

@@ -1,0 +1,6 @@
+event_type_id,label,description
+1,Public Opening,Open to all visitors
+2,Private Opening,Invitation-only preview event
+3,VIP Event,Reserved for special guests and collectors
+4,Art Time,Public creative or mediation session
+5,Meet the Artist,Session with artist present

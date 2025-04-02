@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 SELECT
   interaction_id,
   interaction_type,

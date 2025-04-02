@@ -1,5 +1,7 @@
 -- models/dbt_pipeline/staging/stg_cda_owned__art_show.sql
 
+{{ config(materialized='view') }}
+
 SELECT
   id            AS art_show_id,
   title         AS art_show_title,

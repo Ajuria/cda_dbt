@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 SELECT
     ID              AS user_id,
     user_login,

@@ -1,5 +1,7 @@
 -- models/dbt_pipeline/staging/stg_cda_owned__user.sql
 
+{{ config(materialized='view') }}
+
 SELECT
     user_id,
     user_type,

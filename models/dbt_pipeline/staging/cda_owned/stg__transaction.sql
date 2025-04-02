@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 SELECT
     payment_id,
     interaction_id,

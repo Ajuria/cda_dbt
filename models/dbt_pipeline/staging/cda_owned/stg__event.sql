@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 SELECT
   event_id,
   event_name,
