@@ -1,0 +1,7 @@
+brand_type_id,label,description
+1,Winery Host,Local winery hosting or producing the event
+2,Institutional Sponsor,Public or governmental sponsor
+3,Corporate Sponsor,Corporate entity providing financial support
+4,Individual Sponsor,Independent or private donor
+5,Corporate Partner,Collaborative business entity
+6,Institutional Partner,Collaborative public institution

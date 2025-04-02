@@ -1,0 +1,99 @@
+version: 2
+
+sources:
+  - name: cda_owned
+    database: cda-database
+    schema: cda_owned
+    tables:
+      - name: wp_posts
+        description: "Données brutes extraites de WordPress pour les posts (art_shows, brands, events, etc.)"
+
+models:
+  - name: stg__art_show
+    description: "Staging des expositions d’art issues de WordPress"
+    columns:
+      - name: art_show_id
+        tests: [not_null, unique]
+      - name: art_show_title
+      - name: art_show_slug
+      - name: post_type
+      - name: post_date
+
+  - name: stg__brand
+    description: "Staging des marques (châteaux, institutions, sponsors...)"
+    columns:
+      - name: brand_id
+        tests: [not_null, unique]
+      - name: brand_name
+      - name: brand_slug
+      - name: post_type
+      - name: post_date
+      - name: post_modified
+      - name: post_parent
+      - name: user_id
+
+  - name: stg__event
+    description: "Staging des événements (vernissages, rencontres...)"
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: event_name
+      - name: event_type
+      - name: event_start
+      - name: event_end
+      - name: updated_at
+
+  - name: stg__event_attendance
+    description: "Staging des participations aux événements"
+    columns:
+      - name: event_attendance_id
+        tests: [not_null, unique]
+      - name: event_id
+      - name: user_id
+      - name: attended_at
+
+  - name: stg__interaction
+    description: "Staging des interactions sur site, QR codes, ou réseaux sociaux"
+    columns:
+      - name: interaction_id
+        tests: [not_null, unique]
+      - name: interaction_type
+      - name: source_platform
+      - name: source_url
+      - name: session_id
+      - name: target_id
+      - name: user_id
+      - name: social_media_action
+      - name: timestamp
+      - name: details
+
+  - name: stg__session
+    description: "Staging des sessions utilisateur issues du site"
+    columns:
+      - name: session_id
+        tests: [not_null, unique]
+      - name: source_platform
+      - name: session_source_url
+      - name: user_id
+      - name: brand_id
+      - name: device_type
+      - name: geo_ip
+      - name: geo_name
+      - name: started_at
+      - name: ended_at
+
+  - name: stg__transaction
+    description: "Staging des transactions enregistrées hors HelloAsso"
+    columns:
+      - name: payment_id
+        tests: [not_null, unique]
+      - name: interaction_id
+      - name: user_id
+      - name: amount
+      - name: status
+      - name: created_at
+
+  - name: stg__user
+    description: "Staging des utilisateurs issus du site ou des CRM"
+    columns:
+      - name: user_id_
