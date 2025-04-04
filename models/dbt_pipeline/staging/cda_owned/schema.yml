@@ -6,11 +6,11 @@ sources:
     schema: cda_owned
     tables:
       - name: wp_posts
-        description: "Données brutes extraites de WordPress pour les posts (art_shows, brands, events, etc.)"
+        description: "Table brute WordPress contenant tous les contenus : événements, marques, expositions, etc."
 
 models:
   - name: stg__art_show
-    description: "Staging des expositions d’art issues de WordPress"
+    description: "Modèle de staging des expositions d’art à partir des données WordPress."
     columns:
       - name: art_show_id
         tests: [not_null, unique]
@@ -20,7 +20,7 @@ models:
       - name: post_date
 
   - name: stg__brand
-    description: "Staging des marques (châteaux, institutions, sponsors...)"
+    description: "Modèle de staging des marques partenaires ou organisatrices (domaines, institutions, etc.)."
     columns:
       - name: brand_id
         tests: [not_null, unique]
@@ -33,7 +33,7 @@ models:
       - name: user_id
 
   - name: stg__event
-    description: "Staging des événements (vernissages, rencontres...)"
+    description: "Modèle de staging des événements ponctuels organisés pendant la manifestation."
     columns:
       - name: event_id
         tests: [not_null, unique]
@@ -44,7 +44,7 @@ models:
       - name: updated_at
 
   - name: stg__event_attendance
-    description: "Staging des participations aux événements"
+    description: "Modèle de staging du suivi des présences lors des événements."
     columns:
       - name: event_attendance_id
         tests: [not_null, unique]
@@ -53,7 +53,7 @@ models:
       - name: attended_at
 
   - name: stg__interaction
-    description: "Staging des interactions sur site, QR codes, ou réseaux sociaux"
+    description: "Modèle de staging des interactions numériques : QR, clics, réseaux sociaux."
     columns:
       - name: interaction_id
         tests: [not_null, unique]
@@ -68,7 +68,7 @@ models:
       - name: details
 
   - name: stg__session
-    description: "Staging des sessions utilisateur issues du site"
+    description: "Modèle de staging des sessions utilisateur issues du site internet ou des QR codes."
     columns:
       - name: session_id
         tests: [not_null, unique]
@@ -83,7 +83,7 @@ models:
       - name: ended_at
 
   - name: stg__transaction
-    description: "Staging des transactions enregistrées hors HelloAsso"
+    description: "Modèle de staging des transactions hors HelloAsso (vente directe, CRM, etc.)."
     columns:
       - name: payment_id
         tests: [not_null, unique]
@@ -94,6 +94,22 @@ models:
       - name: created_at
 
   - name: stg__user
-    description: "Staging des utilisateurs issus du site ou des CRM"
+    description: "Modèle de staging des utilisateurs identifiés."
     columns:
-      - name: user_id_
+      - name: user_id
+        tests: [not_null, unique]
+      - name: user_type_id
+      - name: first_name
+      - name: last_name
+      - name: email
+      - name: country
+      - name: created_at
+      - name: updated_at
+
+  - name: stg__wp__posts
+    description: "Référence brute de tous les contenus WordPress pour audits croisés."
+    columns:
+      - name: user_id
+      - name: user_login
+      - name: user_email
+      - name: user_registered

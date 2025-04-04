@@ -1,9 +1,12 @@
+-- models/dbt_pipeline/staging/cda_owned/stg_wp__posts.sql
+
 {{ config(materialized='view') }}
 
 SELECT
-    ID              AS user_id,
-    user_login,
-    user_email,
-    user_registered
-FROM
-    {{ source('wordpress', 'wp_users') }}
+    id     AS post_id,
+    title  AS post_title,
+    slug   AS post_slug,
+    type   AS post_type,
+    date   AS post_date
+FROM `cda-database`.`cda_owned`.`wp_posts`
+WHERE type IS NOT NULL

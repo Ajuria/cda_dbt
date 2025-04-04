@@ -1,4 +1,4 @@
-payment_type_id,label,description
+payment_type_id,payment_type_label,payment_type_description
 1,HelloAsso Ticket,Online public sale via HelloAsso
 2,Winery Host Sale,Sale directly via local host
 3,Corporate Partner Sale,Tickets purchased via B2B deal
