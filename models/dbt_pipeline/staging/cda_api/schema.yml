@@ -5,7 +5,30 @@ sources:
     database: cda-database
     schema: cda_api
     tables:
-      - name: payments
+      - name: helloasso_payment
+        description: "Historique complet des paiements en ligne réalisés via HelloAsso."
+        columns:
+          - name: payment_id
+            description: "Identifiant unique du paiement"
+          - name: amount
+            description: "Montant payé en euros"
+          - name: payment_status
+            description: "Statut du paiement (succeeded, failed, etc.)"
+          - name: payer_json
+            description: "Bloc JSON contenant les infos de l'acheteur"
+          - name: payment_date
+            description: "Date effective du paiement"
+          - name: created_at
+            description: "Horodatage de création du paiement dans la base"
 
 models:
-  - name: stg_cda_api__payments
+  - name: stg__payments
+    description: "Staging des paiements HelloAsso avec enrichissement éventuel du payer."
+    columns:
+      - name: payment_id
+        tests: [not_null, unique]
+      - name: amount
+      - name: payment_status
+      - name: payer_json
+      - name: payment_date
+      - name: created_at

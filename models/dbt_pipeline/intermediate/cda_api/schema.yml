@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: int_payment__with_metadata
+    description: "Prépare les paiements HelloAsso pour intégration multi-source : extraction user_id, normalisation."
+    columns:
+      - name: payment_id
+        tests: [not_null, unique]
+      - name: amount
+      - name: payment_status
+      - name: payment_date
+      - name: user_id
+      - name: payment_type
+      - name: brand_id
+
+  - name: int_payment__all
+    description: "Unifie tous les types de paiements (HelloAsso, vente directe, autres canaux) dans une même vue."
+    columns:
+      - name: payment_id
+        tests: [not_null, unique]
+      - name: payment_type
+      - name: amount
+      - name: user_id
+      - name: interaction_id
+      - name: created_at
+      - name: brand_id

@@ -7,7 +7,7 @@ profile: 'default'
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
-seed-paths: ["seeds"]  # Ensure this points to the right folder
+seed-paths: ["models/cda_dbt/dbt_pipeline/seeds"]  # ✅ already correct
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
@@ -32,7 +32,16 @@ models:
     _disabled:
       +enabled: false
 
+    _hold_seeds_debug:
+      +enabled: false
+
+seed-paths: ["models/dbt_pipeline/seeds"]
+
 seeds:
   cda_dbt:
-    seed_art_show__brand_mapping:
-      path: seeds/seed_art_show__brand_mapping.csv
+    dbt_pipeline:
+      +path: models/dbt_pipeline/seeds
+      +quote_columns: false
+
+
+
