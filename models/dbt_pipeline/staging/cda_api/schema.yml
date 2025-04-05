@@ -18,8 +18,8 @@ sources:
             description: "Bloc JSON contenant les infos de l'acheteur"
           - name: payment_date
             description: "Date effective du paiement"
-          - name: created_at
-            description: "Horodatage de création du paiement dans la base"
+          - name: ingested_at
+            description: "Horodatage d’ingestion dans la base (via dbt run)"
 
 models:
   - name: stg__payments
@@ -29,6 +29,10 @@ models:
         tests: [not_null, unique]
       - name: amount
       - name: payment_status
-      - name: payer_json
+      - name: raw_payer_json
       - name: payment_date
-      - name: created_at
+      - name: ingested_at
+      - name: payer_email
+      - name: payer_first_name
+      - name: payer_last_name
+      - name: payer_country
