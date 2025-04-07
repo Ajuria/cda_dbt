@@ -7,9 +7,9 @@ profile: 'default'
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
-seed-paths: ["models/cda_dbt/dbt_pipeline/seeds"]  # ✅ already correct
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
+seed-paths: ["models/dbt_pipeline/seeds"]
 
 target-path: "target"
 clean-targets:
@@ -35,13 +35,7 @@ models:
     _hold_seeds_debug:
       +enabled: false
 
-seed-paths: ["models/dbt_pipeline/seeds"]
-
 seeds:
   cda_dbt:
     dbt_pipeline:
-      +path: models/dbt_pipeline/seeds
       +quote_columns: false
-
-
-

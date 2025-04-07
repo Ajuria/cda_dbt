@@ -106,7 +106,7 @@ models:
       - name: created_at
       - name: updated_at
 
-  - name: stg__wp__posts
+  - name: stg__wp_posts
     description: "Référence brute de tous les contenus WordPress pour audits croisés."
     columns:
       - name: user_id
