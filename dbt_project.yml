@@ -18,7 +18,7 @@ clean-targets:
 
 models:
   cda_dbt:
-    +schema: cda_pipeline
+    +schema: dbt_jdeajuriaguerra_cda_pipeline
     +materialized: table
 
     dbt_pipeline:
@@ -37,5 +37,6 @@ models:
 
 seeds:
   cda_dbt:
+    +schema: dbt_jdeajuriaguerra_cda_pipeline
     dbt_pipeline:
       +quote_columns: false
