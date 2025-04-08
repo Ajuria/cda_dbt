@@ -1,4 +1,4 @@
-art_show_type_id,label,description
+art_show_type_id,art_show_type_label,art_show_type_description
 1,Indoor Solo Show,Single-artist show held indoors
 2,Indoor Group Show,Multiple artists exhibiting indoors
 3,Outdoor Solo Show,Land art or outdoor solo installation

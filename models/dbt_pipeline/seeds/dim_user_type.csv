@@ -1,0 +1,5 @@
+"user_type_id","user_type_label","user_type_description"
+"1","Logged User","Authenticated visitor"
+"2","Anonymous User","Unregistered or unknown visitor"
+"3","Partner Contact","Professional invited guest"
+"4","Press Contact","Accredited media guest"

@@ -1,4 +1,4 @@
-interaction_type_id,label,description
+interaction_type_id,interaction_type_label,interaction_type_description
 1,Website Visit,Interaction from official website
 2,QR Code Scan,QR code-based interaction
 3,Social Media Like,Like on social platform
