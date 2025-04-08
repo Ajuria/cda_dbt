@@ -19,7 +19,6 @@ clean-targets:
 models:
   cda_dbt:
     +schema: dbt_jdeajuriaguerra_cda_pipeline
-    +materialized: table
 
     dbt_pipeline:
       staging:

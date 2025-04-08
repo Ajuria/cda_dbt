@@ -6,33 +6,70 @@ sources:
     schema: cda_api
     tables:
       - name: helloasso_payment
-        description: "Historique complet des paiements en ligne réalisés via HelloAsso."
+        description: "Full historical record of online payments processed via HelloAsso."
         columns:
           - name: payment_id
-            description: "Identifiant unique du paiement"
+            description: "Unique identifier for the payment transaction."
           - name: amount
-            description: "Montant payé en euros"
+            description: "Amount paid in euros."
           - name: payment_status
-            description: "Statut du paiement (succeeded, failed, etc.)"
+            description: "Status of the payment (e.g. succeeded, failed)."
           - name: payer_json
-            description: "Bloc JSON contenant les infos de l'acheteur"
+            description: "Raw JSON object containing payer information."
           - name: payment_date
-            description: "Date effective du paiement"
+            description: "Timestamp of the payment event."
+          - name: payer_email
+            description: "Email address of the payer extracted from the JSON payload."
+          - name: payer_first_name
+            description: "First name of the payer extracted from the JSON payload."
+          - name: payer_last_name
+            description: "Last name of the payer extracted from the JSON payload."
+          - name: payer_country
+            description: "Country of the payer extracted from the JSON payload."
           - name: ingested_at
-            description: "Horodatage d’ingestion dans la base (via dbt run)"
+            description: "Ingestion timestamp of the record (generated during dbt run)."
 
 models:
-  - name: stg__payments
-    description: "Staging des paiements HelloAsso avec enrichissement éventuel du payer."
+  - name: stg_payments
+    description: "Staging of HelloAsso payments enriched with parsed payer metadata."
     columns:
       - name: payment_id
-        tests: [not_null, unique]
+        description: "Unique identifier for the payment transaction."
+        tests: [not_null, unique]  # PRIMARY KEY
+
       - name: amount
+        description: "Amount paid in euros."
+        tests: [not_null]
+
       - name: payment_status
+        description: "Status of the payment (e.g. succeeded, failed)."
+        tests: [not_null]
+
       - name: raw_payer_json
+        description: "Original JSON structure from HelloAsso containing payer metadata."
+        tests: [not_null]
+
       - name: payment_date
-      - name: ingested_at
+        description: "Timestamp when the payment was processed."
+        tests: [not_null]
+
       - name: payer_email
+        description: "Email address of the payer."
+        tests:
+          - relationships:
+              name: fk_payer_email_in_payments
+              to: ref('stg_user')
+              field: email
+
       - name: payer_first_name
+        description: "First name of the payer."
+
       - name: payer_last_name
+        description: "Last name of the payer."
+
       - name: payer_country
+        description: "Country information of the payer."
+
+      - name: ingested_at
+        description: "Timestamp when the record was ingested into the data warehouse (calculated column)."
+        tests: [not_null]

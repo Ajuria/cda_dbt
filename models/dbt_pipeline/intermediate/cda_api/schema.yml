@@ -2,25 +2,76 @@ version: 2
 
 models:
   - name: int_payment__with_metadata
-    description: "Prépare les paiements HelloAsso pour intégration multi-source : extraction user_id, normalisation."
+    description: "Prepares HelloAsso payments for multi-source integration: extracts user_id and normalizes metadata."
     columns:
       - name: payment_id
+        description: "Unique identifier for the payment transaction."
         tests: [not_null, unique]
+
       - name: amount
+        description: "Amount paid for the transaction."
+
       - name: payment_status
+        description: "Status of the payment (e.g. succeeded, failed)."
+
       - name: payment_date
+        description: "Timestamp when the payment was processed."
+
       - name: user_id
+        description: "Anonymized user identifier derived from payer email (foreign key)."
+        tests:
+          - relationships:
+              name: fk_user_id_from_payments
+              to: ref('stg_user')
+              field: user_id
+
       - name: payment_type
+        description: "Indicates the type of payment (e.g. helloasso, direct)."
+
       - name: brand_id
+        description: "ID of the brand associated with the payment (foreign key)."
+        tests:
+          - relationships:
+              name: fk_brand_id_from_payments
+              to: ref('stg_brand')
+              field: brand_id
 
   - name: int_payment__all
-    description: "Unifie tous les types de paiements (HelloAsso, vente directe, autres canaux) dans une même vue."
+    description: "Unifies all types of payments (HelloAsso, direct sales, other channels) into a single view."
     columns:
       - name: payment_id
+        description: "Unique identifier for the payment."
         tests: [not_null, unique]
+
       - name: payment_type
+        description: "Type/category of the payment source (helloasso, crm, etc.)"
+
       - name: amount
+        description: "Paid amount in euros."
+
       - name: user_id
+        description: "User linked to the payment (foreign key)."
+        tests:
+          - relationships:
+              name: fk_user_id_all_payments
+              to: ref('stg_user')
+              field: user_id
+
       - name: interaction_id
+        description: "If applicable, links payment to a tracked user interaction (foreign key)."
+        tests:
+          - relationships:
+              name: fk_interaction_id_all_payments
+              to: ref('stg_interaction')
+              field: interaction_id
+
       - name: created_at
+        description: "Timestamp of payment creation."
+
       - name: brand_id
+        description: "Brand associated with the payment (foreign key)."
+        tests:
+          - relationships:
+              name: fk_brand_id_all_payments
+              to: ref('stg_brand')
+              field: brand_id
