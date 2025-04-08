@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: cda_owned
+  - name: wordpress  # Matches what your models expect: source('wordpress', 'wp_posts')
     database: cda-database
     schema: cda_owned
     tables:
