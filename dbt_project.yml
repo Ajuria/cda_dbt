@@ -19,6 +19,7 @@ clean-targets:
 models:
   cda_dbt:
     +schema: dbt_jdeajuriaguerra_cda_pipeline
+    +location: EU
 
     dbt_pipeline:
       staging:
@@ -34,8 +35,6 @@ models:
     _hold_seeds_debug:
       +enabled: false
 
-seeds:
-  cda_dbt:
-    +schema: dbt_jdeajuriaguerra_cda_pipeline
-    dbt_pipeline:
-      +quote_columns: false
+    example:
+      stg_airbnb:
+        +materialized: view  # ✅ keep this one enabled

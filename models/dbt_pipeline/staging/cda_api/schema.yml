@@ -28,6 +28,8 @@ sources:
             description: "Country of the payer extracted from the JSON payload."
           - name: ingested_at
             description: "Ingestion timestamp of the record (generated during dbt run)."
+      - name: payments
+        description: "Raw HelloAsso payment data used as base input for stg_payments."
 
 models:
   - name: stg_payments

@@ -22,4 +22,5 @@ WITH combined_content AS (
   FROM {{ ref('stg__wp_posts') }}
 )
 
-SELECT * FROM combined_content
+SELECT * 
+FROM combined_content

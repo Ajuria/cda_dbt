@@ -135,25 +135,6 @@ models:
       - name: user_ingested_at
         description: "Ingestion time of the user record."
 
-  - name: int_user__from_payments
-    description: "Derives user IDs from hashed emails and aggregates payment-based user metadata."
-    columns:
-      - name: user_id
-        description: "Unique identifier derived by hashing the payer's email."
-        tests: [not_null, unique]
-      - name: payer_first_name
-        description: "First name from payment record."
-      - name: payer_last_name
-        description: "Last name from payment record."
-      - name: payer_email
-        description: "Email address of the user."
-      - name: payer_country
-        description: "Country provided in payment metadata."
-      - name: first_seen_date
-        description: "First time this user made a payment."
-      - name: ingested_at
-        description: "Processing timestamp of the record."
-
   - name: int_user_consolidated
     description: "Combines known users and payment-based users into a unified user dimension."
     columns:

@@ -9,5 +9,5 @@ SELECT
     NULL           AS post_modified,
     NULL           AS post_parent,
     NULL           AS user_id
-FROM {{ source('wordpress', 'wp_posts') }}
+FROM {{ source('cda_owned', 'wp_posts') }}
 WHERE type = 'brand'

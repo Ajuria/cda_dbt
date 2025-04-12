@@ -1,12 +1,24 @@
 version: 2
 
 sources:
-  - name: wordpress
+  - name: cda_owned
     database: cda-database
     schema: cda_owned
     tables:
       - name: wp_posts
         description: "Raw WordPress table containing all types of content (events, brands, art shows, etc.)"
+      - name: user
+        description: "User table containing identified user records."
+      - name: session
+        description: "Session-level data for web tracking."
+      - name: interaction
+        description: "Interaction-level table for digital engagement."
+      - name: event
+        description: "Event metadata from the Costières program."
+      - name: event_attendance
+        description: "Attendance records for events."
+      - name: wp_pages
+        description: "Raw WordPress table with static page content."
 
 models:
   - name: stg_art_show

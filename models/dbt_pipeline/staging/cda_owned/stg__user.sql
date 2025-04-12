@@ -1,12 +1,17 @@
 {{ config(materialized='view') }}
 
 SELECT
-  CONCAT('user_', FORMAT('%x', FARM_FINGERPRINT(CAST(session_id AS STRING)))) AS user_id,
-  session_id,
-  device,
-  geo_ip,
-  geo_name,
-  CURRENT_TIMESTAMP() AS ingested_at
-FROM {{ ref('stg__session') }}
+    user_id,
+    user_type AS user_type_id,
+    first_name,
+    last_name,
+    email,
+    country,
+    FORMAT_TIMESTAMP('%F %T', created_at)           AS created_at,
+    FORMAT_TIMESTAMP('%F %T', updated_at)           AS updated_at,
+    FORMAT_TIMESTAMP('%F %T', CURRENT_TIMESTAMP)    AS ingested_at,
+FROM {{ source('cda_owned', 'user') }}
+
+
 
 

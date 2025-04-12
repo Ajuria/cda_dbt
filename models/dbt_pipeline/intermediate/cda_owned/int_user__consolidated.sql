@@ -1,30 +1,31 @@
--- models/dbt_pipeline/intermediate/cda_owned/int_user__consolidated.sql
-
 {{ config(materialized='view') }}
 
-SELECT
-  user_id,
-  NULL AS payer_first_name,
-  NULL AS payer_last_name,
-  NULL AS payer_email,
-  NULL AS payer_country,
-  device,
-  geo_ip,
-  geo_name,
-  ingested_at
-FROM {{ ref('stg__user') }}
+WITH latest_session_per_user AS (
+  SELECT
+    user_id,
+    device,
+    geo_ip,
+    geo_name,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY started_at DESC) AS rn
+  FROM {{ ref('stg__session') }}
+)
 
-UNION ALL
+, enriched_user AS (
+  SELECT
+    u.user_id                                   AS user_id_raw,
+    SUBSTR(TO_HEX(SHA256(u.user_id)), 1, 16)    AS user_id,
+    u.first_name                                AS payer_first_name,
+    u.last_name                                 AS payer_last_name,
+    u.email                                     AS payer_email,
+    u.country                                   AS payer_country,
+    s.device,
+    s.geo_ip,
+    s.geo_name,
+    CAST(u.ingested_at AS TIMESTAMP)            AS ingested_at
+  FROM {{ ref('stg__user') }} u
+  LEFT JOIN latest_session_per_user s
+    ON u.user_id = s.user_id
+   AND s.rn = 1
+)
 
-SELECT
-  user_id,
-  payer_first_name,
-  payer_last_name,
-  payer_email,
-  payer_country,
-  NULL AS device,
-  NULL AS geo_ip,
-  NULL AS geo_name,
-  ingested_at
-FROM {{ ref('int_user__from_payments') }}
-
+SELECT * FROM enriched_user
