@@ -9,7 +9,7 @@ analysis-paths: ["analyses"]
 test-paths: ["tests"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-seed-paths: ["models/dbt_pipeline/seeds"]
+seed-paths: ["models/dbt_pipeline/seeds"]  # ✅ your seed files are here
 
 target-path: "target"
 clean-targets:
@@ -19,7 +19,7 @@ clean-targets:
 models:
   cda_dbt:
     +schema: dbt_jdeajuriaguerra_cda_pipeline
-    +materialized: table
+    +location: EU
 
     dbt_pipeline:
       staging:
@@ -35,8 +35,12 @@ models:
     _hold_seeds_debug:
       +enabled: false
 
+    example:
+      stg_airbnb:
+        +materialized: view 
+
 seeds:
   cda_dbt:
-    +schema: dbt_jdeajuriaguerra_cda_pipeline
     dbt_pipeline:
-      +quote_columns: false
+      seeds:
+        +schema: dbt_jdeajuriaguerra_cda_pipeline

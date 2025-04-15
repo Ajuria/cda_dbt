@@ -1,115 +1,232 @@
 version: 2
 
 sources:
-  - name: wordpress  # Matches what your models expect: source('wordpress', 'wp_posts')
+  - name: cda_owned
     database: cda-database
     schema: cda_owned
     tables:
       - name: wp_posts
-        description: "Table brute WordPress contenant tous les contenus : événements, marques, expositions, etc."
+        description: "Raw WordPress table containing all types of content (events, brands, art shows, etc.)"
+      - name: user
+        description: "User table containing identified user records."
+      - name: session
+        description: "Session-level data for web tracking."
+      - name: interaction
+        description: "Interaction-level table for digital engagement."
+      - name: event
+        description: "Event metadata from the Costières program."
+      - name: event_attendance
+        description: "Attendance records for events."
+      - name: wp_pages
+        description: "Raw WordPress table with static page content."
 
 models:
-  - name: stg__art_show
-    description: "Modèle de staging des expositions d’art à partir des données WordPress."
+  - name: stg_art_show
+    description: "Staging model for art exhibitions sourced from WordPress data."
     columns:
       - name: art_show_id
+        description: "Unique identifier for the art show."
         tests: [not_null, unique]
       - name: art_show_title
+        description: "Title of the art show."
       - name: art_show_slug
+        description: "URL-friendly slug for the art show."
       - name: post_type
+        description: "Type of the WordPress post."
       - name: post_date
+        description: "Publication date of the post."
 
-  - name: stg__brand
-    description: "Modèle de staging des marques partenaires ou organisatrices (domaines, institutions, etc.)."
+  - name: stg_brand
+    description: "Staging model for participating or organizing brands (estates, institutions, etc.)"
     columns:
       - name: brand_id
+        description: "Unique identifier for the brand."
         tests: [not_null, unique]
       - name: brand_name
+        description: "Name of the brand."
       - name: brand_slug
+        description: "Slug of the brand."
       - name: post_type
+        description: "Type of the WordPress post."
       - name: post_date
+        description: "Creation date of the post."
       - name: post_modified
+        description: "Last modification timestamp."
       - name: post_parent
+        description: "Parent post (NULL if none)."
       - name: user_id
+        description: "ID of the user linked to this brand (foreign key)."
+        tests:
+          - not_null
+          - relationships:
+              name: fk_user_id_in_brand
+              to: ref('stg_user')
+              field: user_id
 
-  - name: stg__event
-    description: "Modèle de staging des événements ponctuels organisés pendant la manifestation."
+  - name: stg_event
+    description: "Staging model for events held during the art season."
     columns:
       - name: event_id
+        description: "Unique identifier for the event."
         tests: [not_null, unique]
       - name: event_name
+        description: "Name of the event."
       - name: event_type
+        description: "Type of the event."
       - name: event_start
+        description: "Start datetime of the event."
       - name: event_end
+        description: "End datetime of the event."
       - name: updated_at
+        description: "Last updated timestamp."
 
-  - name: stg__event_attendance
-    description: "Modèle de staging du suivi des présences lors des événements."
+  - name: stg_event_attendance
+    description: "Staging model for attendance tracking during events."
     columns:
       - name: event_attendance_id
+        description: "Unique identifier for the event attendance record."
         tests: [not_null, unique]
       - name: event_id
+        description: "ID of the attended event (foreign key)."
+        tests:
+          - not_null
+          - relationships:
+              name: fk_event_id_in_event_attendance
+              to: ref('stg_event')
+              field: event_id
       - name: user_id
+        description: "ID of the attending user (foreign key)."
+        tests:
+          - not_null
+          - relationships:
+              name: fk_user_id_in_event_attendance
+              to: ref('stg_user')
+              field: user_id
       - name: attended_at
+        description: "Timestamp of attendance."
 
-  - name: stg__interaction
-    description: "Modèle de staging des interactions numériques : QR, clics, réseaux sociaux."
+  - name: stg_interaction
+    description: "Staging model for digital interactions: QR, clicks, social media."
     columns:
       - name: interaction_id
+        description: "Unique identifier for the interaction."
         tests: [not_null, unique]
       - name: interaction_type
+        description: "Type of the interaction (e.g., QR scan, click)."
       - name: source_platform
+        description: "Platform where the interaction occurred."
       - name: source_url
+        description: "URL from which the interaction was triggered."
       - name: session_id
+        description: "Session ID linking to the broader session context."
+        tests:
+          - relationships:
+              name: fk_session_id_in_interaction
+              to: ref('stg_session')
+              field: session_id
       - name: target_id
+        description: "ID of the content/item targeted by the interaction."
       - name: user_id
+        description: "User ID if known."
+        tests:
+          - relationships:
+              name: fk_user_id_in_interaction
+              to: ref('stg_user')
+              field: user_id
       - name: social_media_action
+        description: "Action taken on social media, if any."
       - name: timestamp
+        description: "Timestamp of the interaction."
       - name: details
+        description: "Additional JSON-formatted details."
 
-  - name: stg__session
-    description: "Modèle de staging des sessions utilisateur issues du site internet ou des QR codes."
+  - name: stg_session
+    description: "Staging model for user sessions from the website."
     columns:
       - name: session_id
+        description: "Unique identifier for the session."
         tests: [not_null, unique]
       - name: source_platform
+        description: "Platform from which the session originated."
       - name: session_source_url
+        description: "Original URL used to initiate the session."
       - name: user_id
+        description: "ID of the user if identifiable."
+        tests:
+          - relationships:
+              name: fk_user_id_in_session
+              to: ref('stg_user')
+              field: user_id
       - name: brand_id
-      - name: device_type
+        description: "Brand associated with the session."
+        tests:
+          - relationships:
+              name: fk_brand_id_in_session
+              to: ref('stg_brand')
+              field: brand_id
+      - name: device
+        description: "Device used during the session."
       - name: geo_ip
+        description: "IP address used in the session."
       - name: geo_name
+        description: "Geolocation name derived from IP."
       - name: started_at
+        description: "Start time of the session."
       - name: ended_at
+        description: "End time of the session."
 
-  - name: stg__transaction
-    description: "Modèle de staging des transactions hors HelloAsso (vente directe, CRM, etc.)."
-    columns:
-      - name: payment_id
-        tests: [not_null, unique]
-      - name: interaction_id
-      - name: user_id
-      - name: amount
-      - name: status
-      - name: created_at
-
-  - name: stg__user
-    description: "Modèle de staging des utilisateurs identifiés."
+  - name: stg_user
+    description: "Staging model for identified users."
     columns:
       - name: user_id
+        description: "Unique identifier for the user."
         tests: [not_null, unique]
       - name: user_type_id
+        description: "Type classification of the user."
       - name: first_name
+        description: "First name of the user."
       - name: last_name
+        description: "Last name of the user."
       - name: email
+        description: "User email address."
       - name: country
+        description: "User country of origin."
       - name: created_at
+        description: "Timestamp of creation."
       - name: updated_at
+        description: "Timestamp of latest update."
 
-  - name: stg__wp_posts
-    description: "Référence brute de tous les contenus WordPress pour audits croisés."
+  - name: stg_wp_posts
+    description: "Raw reference of all WordPress content for cross-checks."
+    columns:
+      - name: post_id
+        description: "ID of the post."
+        tests: [not_null, unique]
+      - name: post_title
+        description: "Title of the post."
+      - name: post_slug
+        description: "Slug of the post."
+      - name: post_type
+        description: "Type of WordPress content."
+      - name: post_date
+        description: "Date of publication."
+
+  - name: stg_login
+    description: "Staging model aggregating all possible user login origins (HelloAsso, WordPress, Facebook, Instagram, Anonymous sessions)."
     columns:
       - name: user_id
-      - name: user_login
-      - name: user_email
-      - name: user_registered
+        description: "Unified user identifier (hashed or inherited from interaction/session)."
+        tests: [not_null]
+
+      - name: login_platform
+        description: "Platform through which the user was identified or inferred (helloasso, wordpress, instagram, facebook, anonymous)."
+        tests:
+          - accepted_values:
+              values: ['helloasso', 'wordpress', 'instagram', 'facebook', 'anonymous']
+
+      - name: email
+        description: "Email address of the user, when available."
+
+      - name: source_table
+        description: "Table name from which the login record originates (e.g. cda_api.payments, cda_owned.user, etc.)"
+        tests: [not_null]

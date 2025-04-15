@@ -1,0 +1,159 @@
+version: 2
+
+models:
+  - name: int_content_taxonomy
+    description: "Unifies taxonomy from pages and posts to standardize content types."
+    columns:
+      - name: id
+        description: "Primary identifier for the content (post/page ID)."
+        tests: [not_null, unique]
+      - name: slug
+        description: "URL-friendly identifier for the content."
+      - name: title
+        description: "Title of the content."
+      - name: type
+        description: "Type of the content (e.g., post, page)."
+      - name: published_at
+        description: "Timestamp when the content was published."
+      - name: source
+        description: "Source type: 'page' or 'post'."
+
+  - name: int_session__with_event_unified
+    description: "Extends sessions with placeholder fields for event and art show mappings."
+    columns:
+      - name: session_id
+        description: "Unique identifier for the session."
+        tests: [not_null, unique]
+      - name: user_id
+        description: "User identifier if known (from session or inferred)."
+        tests:
+          - relationships:
+              name: fk_user_id_event_unified
+              to: ref('stg_user')
+              field: user_id
+      - name: start_timestamp
+        description: "Timestamp when the session started."
+      - name: end_timestamp
+        description: "Timestamp when the session ended."
+      - name: source_platform
+        description: "Platform where the session originated (e.g., website, QR)."
+      - name: session_source_url
+        description: "Initial URL used to initiate the session."
+      - name: device
+        description: "Device used during the session."
+      - name: geo_ip
+        description: "IP address of the session."
+      - name: geo_name
+        description: "Resolved geographic location from IP."
+      - name: brand_id
+        description: "Brand associated with the session."
+        tests:
+          - relationships:
+              name: fk_brand_id_event_unified
+              to: ref('stg_brand')
+              field: brand_id
+      - name: event_id
+        description: "Placeholder for event ID (to be joined later)."
+        tests:
+          - relationships:
+              name: fk_event_id_event_unified
+              to: ref('stg_event')
+              field: event_id
+      - name: event_type_id
+        description: "Placeholder for event type (to be joined later)."
+      - name: art_show_id
+        description: "Placeholder for linked art show (if applicable)."
+        tests:
+          - relationships:
+              name: fk_art_show_id_event_unified
+              to: ref('stg_art_show')
+              field: art_show_id
+      - name: art_show_type_id
+        description: "Placeholder for type of art show (if applicable)."
+
+  - name: int_session__with_interaction
+    description: "Joins interaction data with session metadata (geo, device, etc.)."
+    columns:
+      - name: interaction_id
+        description: "Unique identifier for the interaction."
+        tests: [not_null, unique]
+      - name: session_id
+        description: "Session associated with the interaction."
+        tests:
+          - relationships:
+              name: fk_session_id_interaction
+              to: ref('stg_session')
+              field: session_id
+      - name: user_id
+        description: "User linked to the interaction if known."
+        tests:
+          - relationships:
+              name: fk_user_id_interaction
+              to: ref('stg_user')
+              field: user_id
+      - name: interaction_type
+        description: "Type of interaction (click, QR, social, etc.)."
+      - name: interacted_at
+        description: "Timestamp of the interaction."
+      - name: url
+        description: "Source URL that triggered the interaction."
+      - name: device
+        description: "Device used during the session."
+      - name: geo_ip
+        description: "IP address used in the session."
+      - name: geo_name
+        description: "Resolved location from the session IP."
+      - name: ingested_at
+        description: "Timestamp when the record was processed."
+
+  - name: int_session__with_user_details
+    description: "Enriches sessions with user information if available."
+    columns:
+      - name: session_id
+        description: "Unique identifier for the session."
+        tests: [not_null]
+      - name: session_source_url
+        description: "URL used to start the session."
+      - name: started_at
+        description: "Formatted timestamp when the session started."
+      - name: ended_at
+        description: "Formatted timestamp when the session ended."
+      - name: payer_first_name
+        description: "User first name if available from payments or registrations."
+      - name: payer_last_name
+        description: "User last name if available."
+      - name: payer_email
+        description: "User email if available."
+      - name: payer_country
+        description: "User country of origin."
+      - name: device
+        description: "User device in session."
+      - name: geo_ip
+        description: "IP used by the user."
+      - name: geo_name
+        description: "Geographic location derived from IP."
+      - name: user_ingested_at
+        description: "Ingestion time of the user record."
+
+  - name: int_user_consolidated
+    description: "Combines known users and payment-based users into a unified user dimension."
+    columns:
+      - name: user_id
+        description: "Primary user identifier used across all sources."
+        tests: [not_null, unique]
+      - name: payer_first_name
+        description: "First name if known from payment."
+      - name: payer_last_name
+        description: "Last name if known from payment."
+      - name: payer_email
+        description: "Email if known from payment."
+      - name: payer_country
+        description: "Country from payment if applicable."
+      - name: device
+        description: "Device from web session if applicable."
+      - name: geo_ip
+        description: "User’s IP from web session if available."
+      - name: geo_name
+        description: "Resolved geo location of the user."
+      - name: ingested_at
+        description: "Ingestion timestamp of the record."

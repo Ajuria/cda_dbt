@@ -11,13 +11,13 @@ SELECT
   p.payer_last_name,
   p.payer_country,
   p.payment_date,
-  p.ingested_at AS payment_ingested_at,
+  p.ingested_at             AS payment_ingested_at,
 
   u.user_id,
   u.geo_ip,
   u.geo_name,
   u.device,
-  u.ingested_at AS user_ingested_at
+  u.ingested_at             AS user_ingested_at
 
 FROM {{ ref('stg__payments') }} AS p
 LEFT JOIN {{ ref('int_user__consolidated') }} AS u

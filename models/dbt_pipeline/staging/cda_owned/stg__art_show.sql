@@ -8,6 +8,6 @@ SELECT
   slug          AS art_show_slug,
   type          AS post_type,
   date          AS post_date
-FROM `cda-database`.`cda_owned`.`wp_posts`
+FROM {{ source('cda_owned', 'wp_posts') }}
 WHERE type = 'art_show'
 
