@@ -210,3 +210,23 @@ models:
         description: "Type of WordPress content."
       - name: post_date
         description: "Date of publication."
+
+  - name: stg_login
+    description: "Staging model aggregating all possible user login origins (HelloAsso, WordPress, Facebook, Instagram, Anonymous sessions)."
+    columns:
+      - name: user_id
+        description: "Unified user identifier (hashed or inherited from interaction/session)."
+        tests: [not_null]
+
+      - name: login_platform
+        description: "Platform through which the user was identified or inferred (helloasso, wordpress, instagram, facebook, anonymous)."
+        tests:
+          - accepted_values:
+              values: ['helloasso', 'wordpress', 'instagram', 'facebook', 'anonymous']
+
+      - name: email
+        description: "Email address of the user, when available."
+
+      - name: source_table
+        description: "Table name from which the login record originates (e.g. cda_api.payments, cda_owned.user, etc.)"
+        tests: [not_null]

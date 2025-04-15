@@ -9,7 +9,7 @@ analysis-paths: ["analyses"]
 test-paths: ["tests"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-seed-paths: ["models/dbt_pipeline/seeds"]
+seed-paths: ["models/dbt_pipeline/seeds"]  # ✅ your seed files are here
 
 target-path: "target"
 clean-targets:
@@ -37,4 +37,10 @@ models:
 
     example:
       stg_airbnb:
-        +materialized: view  # ✅ keep this one enabled
+        +materialized: view 
+
+seeds:
+  cda_dbt:
+    dbt_pipeline:
+      seeds:
+        +schema: dbt_jdeajuriaguerra_cda_pipeline

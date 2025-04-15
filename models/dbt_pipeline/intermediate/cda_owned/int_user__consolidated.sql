@@ -13,6 +13,7 @@ WITH latest_session_per_user AS (
 , enriched_user AS (
   SELECT
     u.user_id                                   AS user_id_raw,
+    u.user_type_id                              AS user_type_id,
     SUBSTR(TO_HEX(SHA256(u.user_id)), 1, 16)    AS user_id,
     u.first_name                                AS payer_first_name,
     u.last_name                                 AS payer_last_name,

@@ -2,6 +2,7 @@
 
 SELECT
   id                                    AS payment_id,
+  1 AS user_type_id,
   SAFE_CAST(amount AS FLOAT64) / 100.0  AS amount,
   state                                 AS payment_status,
 
