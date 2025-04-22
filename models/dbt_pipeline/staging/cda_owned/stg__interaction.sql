@@ -34,7 +34,10 @@ SELECT
   cda_website_source,
   CAST(session_id AS STRING)   AS session_id,
   target_id,
-  user_id,
+
+  -- user_id généré depuis user_id OU session_id si manquant
+  SUBSTR(TO_HEX(SHA256(CAST(COALESCE(user_id, session_id) AS STRING))), 1, 16) AS user_id,
+
   social_media_action,
   timestamp,
   interaction_label

@@ -9,4 +9,4 @@ SELECT
     type                            AS post_type,
     date                            AS post_date
 FROM {{ source('cda_owned', 'wp_posts') }}
-WHERE type IS NOT NULL
+-- WHERE type = 'portfolio'  -- IS NOT NULL

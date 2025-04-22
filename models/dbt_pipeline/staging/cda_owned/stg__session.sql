@@ -4,6 +4,7 @@ WITH cleaned AS (
   SELECT
     CAST(session_id AS STRING)      AS session_id,      
     CAST(source_platform AS STRING) AS source_platform,
+
     NULLIF(
       REGEXP_REPLACE(
         REGEXP_REPLACE(session_source_url, r'^https?://costieresdelart\.fr/', ''),
@@ -12,7 +13,11 @@ WITH cleaned AS (
       ''
     ) AS session_source_url,
 
-    CAST(user_id AS STRING)                 AS user_id,
+    -- Generate user_id: fallback to session_id if missing
+    SUBSTR(TO_HEX(SHA256(CAST(
+      COALESCE(user_id, session_id) AS STRING
+    ))), 1, 16) AS user_id,
+
     CAST(brand_id AS STRING)                AS brand_id,
     CAST(device AS STRING)                  AS device,
     CAST(geo_ip AS STRING)                  AS geo_ip,

@@ -1,159 +1,122 @@
 version: 2
 
 models:
-  - name: int_content_taxonomy
-    description: "Unifies taxonomy from pages and posts to standardize content types."
-    columns:
-      - name: id
-        description: "Primary identifier for the content (post/page ID)."
-        tests: [not_null, unique]
-      - name: slug
-        description: "URL-friendly identifier for the content."
-      - name: title
-        description: "Title of the content."
-      - name: type
-        description: "Type of the content (e.g., post, page)."
-      - name: published_at
-        description: "Timestamp when the content was published."
-      - name: source
-        description: "Source type: 'page' or 'post'."
-
-  - name: int_session__with_event_unified
-    description: "Extends sessions with placeholder fields for event and art show mappings."
+  - name: int_fact__session
+    description: "Final session fact table with deduplicated user IDs, metadata, and campaign codes."
     columns:
       - name: session_id
-        description: "Unique identifier for the session."
+        description: "Shortened SHA256 session identifier."
         tests: [not_null, unique]
       - name: user_id
-        description: "User identifier if known (from session or inferred)."
+        description: "Unified user ID (fallback to session-based ID if unknown)."
         tests:
           - relationships:
-              name: fk_user_id_event_unified
-              to: ref('stg_user')
+              name: fk_user_id_fact_session
+              to: ref('int_fact__user')
               field: user_id
-      - name: start_timestamp
-        description: "Timestamp when the session started."
-      - name: end_timestamp
-        description: "Timestamp when the session ended."
       - name: source_platform
-        description: "Platform where the session originated (e.g., website, QR)."
+        description: "Platform where the session originated."
       - name: session_source_url
-        description: "Initial URL used to initiate the session."
+        description: "URL that initiated the session."
+      - name: code
+        description: "QR or campaign code extracted from the session_source_url if available."
+      - name: started_at
+        description: "Session start timestamp, formatted."
+      - name: ended_at
+        description: "Session end timestamp, formatted."
       - name: device
-        description: "Device used during the session."
+        description: "Device used in the session."
       - name: geo_ip
-        description: "IP address of the session."
+        description: "IP address of the user."
       - name: geo_name
-        description: "Resolved geographic location from IP."
-      - name: brand_id
-        description: "Brand associated with the session."
-        tests:
-          - relationships:
-              name: fk_brand_id_event_unified
-              to: ref('stg_brand')
-              field: brand_id
-      - name: event_id
-        description: "Placeholder for event ID (to be joined later)."
-        tests:
-          - relationships:
-              name: fk_event_id_event_unified
-              to: ref('stg_event')
-              field: event_id
-      - name: event_type_id
-        description: "Placeholder for event type (to be joined later)."
-      - name: art_show_id
-        description: "Placeholder for linked art show (if applicable)."
-        tests:
-          - relationships:
-              name: fk_art_show_id_event_unified
-              to: ref('stg_art_show')
-              field: art_show_id
-      - name: art_show_type_id
-        description: "Placeholder for type of art show (if applicable)."
+        description: "Location resolved from IP."
+      - name: email
+        description: "Email of the user if known."
+      - name: country
+        description: "Country of origin of the user."
 
-  - name: int_session__with_interaction
-    description: "Joins interaction data with session metadata (geo, device, etc.)."
+  - name: int_fact__user
+    description: "Unified user table deduplicating logins from all platforms (WordPress, HelloAsso, social, anonymous)."
+    columns:
+      - name: user_id
+        description: "Shortened and hashed user ID, platform-dependent."
+        tests: [not_null, unique]
+      - name: login_platform
+        description: "Source platform for the login (e.g., helloasso, wordpress)."
+      - name: email
+        description: "User email if known."
+      - name: source_table
+        description: "Table the record originates from."
+      - name: first_name
+        description: "User first name if available."
+      - name: last_name
+        description: "User last name if available."
+      - name: country
+        description: "User country if known."
+      - name: ingested_at
+        description: "Timestamp of user data ingestion."
+
+  - name: int_fact__interaction
+    description: "Unified interaction events with user and session details, including QR/campaign code tracking."
     columns:
       - name: interaction_id
-        description: "Unique identifier for the interaction."
+        description: "Shortened hashed interaction ID."
         tests: [not_null, unique]
       - name: session_id
-        description: "Session associated with the interaction."
+        description: "Shortened session ID linked to the interaction."
         tests:
           - relationships:
-              name: fk_session_id_interaction
-              to: ref('stg_session')
+              name: fk_session_id_fact_interaction
+              to: ref('int_fact__session')
               field: session_id
       - name: user_id
-        description: "User linked to the interaction if known."
+        description: "User performing the interaction (if known)."
         tests:
           - relationships:
-              name: fk_user_id_interaction
-              to: ref('stg_user')
+              name: fk_user_id_fact_interaction
+              to: ref('int_fact__user')
               field: user_id
-      - name: interaction_type
-        description: "Type of interaction (click, QR, social, etc.)."
-      - name: interacted_at
+      - name: occurred_at
         description: "Timestamp of the interaction."
       - name: url
-        description: "Source URL that triggered the interaction."
+        description: "URL where the interaction happened."
+      - name: code
+        description: "QR code or campaign code extracted from the interaction URL (e.g. ?code=beaubois2025)."
       - name: device
-        description: "Device used during the session."
+        description: "Device used."
       - name: geo_ip
-        description: "IP address used in the session."
+        description: "IP address used."
       - name: geo_name
-        description: "Resolved location from the session IP."
+        description: "Geo-resolved location."
       - name: ingested_at
-        description: "Timestamp when the record was processed."
+        description: "Ingestion timestamp of the interaction."
 
-  - name: int_session__with_user_details
-    description: "Enriches sessions with user information if available."
+  - name: int_fact__payment
+    description: "Final payments table with normalized values and hashed user_id."
     columns:
-      - name: session_id
-        description: "Unique identifier for the session."
-        tests: [not_null]
-      - name: session_source_url
-        description: "URL used to start the session."
-      - name: started_at
-        description: "Formatted timestamp when the session started."
-      - name: ended_at
-        description: "Formatted timestamp when the session ended."
-      - name: payer_first_name
-        description: "User first name if available from payments or registrations."
-      - name: payer_last_name
-        description: "User last name if available."
-      - name: payer_email
-        description: "User email if available."
-      - name: payer_country
-        description: "User country of origin."
-      - name: device
-        description: "User device in session."
-      - name: geo_ip
-        description: "IP used by the user."
-      - name: geo_name
-        description: "Geographic location derived from IP."
-      - name: user_ingested_at
-        description: "Ingestion time of the user record."
-
-  - name: int_user_consolidated
-    description: "Combines known users and payment-based users into a unified user dimension."
-    columns:
-      - name: user_id
-        description: "Primary user identifier used across all sources."
+      - name: payment_id
+        description: "Unique payment identifier."
         tests: [not_null, unique]
-      - name: payer_first_name
-        description: "First name if known from payment."
-      - name: payer_last_name
-        description: "Last name if known from payment."
+      - name: amount
+        description: "Amount paid in euros."
+      - name: payment_status
+        description: "Payment status (e.g., Authorized)."
+      - name: payment_date
+        description: "Formatted date of payment."
+      - name: user_id
+        description: "User who made the payment, hashed."
+        tests:
+          - relationships:
+              name: fk_user_id_fact_payment
+              to: ref('int_fact__user')
+              field: user_id
+      - name: payment_type
+        description: "Type/source of payment (e.g., HelloAsso)."
       - name: payer_email
-        description: "Email if known from payment."
+        description: "Email of the payer."
+      - name: payer_first_name
+        description: "Payer first name."
+      - name: payer_last_name
+        description: "Payer last name."
       - name: payer_country
-        description: "Country from payment if applicable."
-      - name: device
-        description: "Device from web session if applicable."
-      - name: geo_ip
-        description: "User’s IP from web session if available."
-      - name: geo_name
-        description: "Resolved geo location of the user."
-      - name: ingested_at
-        description: "Ingestion timestamp of the record."
+        description: "Country of the payer."
