@@ -56,7 +56,7 @@ helloasso_logins AS (
         payer_last_name                                              AS last_name,
         payer_country                                                AS country,
         FORMAT_TIMESTAMP('%F %H:%M', CAST(ingested_at AS TIMESTAMP)) AS ingested_at
-    FROM {{ ref('stg__payments') }}
+    FROM {{ ref('stg_ha__payments') }}
     WHERE payer_email IS NOT NULL
 ),
 

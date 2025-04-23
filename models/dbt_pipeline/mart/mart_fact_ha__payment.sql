@@ -8,10 +8,9 @@ WITH base AS (
     amount,
     payer_gender,
     FORMAT_TIMESTAMP('%G-W%V', PARSE_TIMESTAMP('%F %H:%M', payment_date)) AS iso_week
-  FROM {{ ref('int_fact__payment') }}
+  FROM {{ ref('int_fact_ha__payment') }}
 ),
 
--- Revenue per country
 revenue_per_country AS (
   SELECT
     payer_country,
@@ -20,7 +19,6 @@ revenue_per_country AS (
   GROUP BY payer_country
 ),
 
--- Revenue per gender
 revenue_per_gender AS (
   SELECT
     payer_gender,
@@ -33,7 +31,6 @@ revenue_per_gender AS (
   GROUP BY payer_gender
 ),
 
--- Weekly revenue stats
 revenue_per_week AS (
   SELECT
     iso_week,
@@ -54,7 +51,7 @@ global_stats AS (
   FROM base
 )
 
--- Final output
+-- Final
 SELECT
   gs.global_min_spend,
   gs.global_max_spend,

@@ -7,16 +7,12 @@ models:
       - name: payment_id
         description: "Unique identifier for the payment transaction."
         tests: [not_null, unique]
-
       - name: amount
         description: "Amount paid for the transaction."
-
       - name: payment_status
         description: "Status of the payment (e.g. succeeded, failed)."
-
       - name: payment_date
         description: "Timestamp when the payment was processed."
-
       - name: user_id
         description: "Anonymized user identifier derived from payer email (foreign key)."
         tests:
@@ -24,10 +20,8 @@ models:
               name: fk_user_id_from_payments
               to: ref('stg_user')
               field: user_id
-
       - name: payment_type
         description: "Indicates the type of payment (e.g. helloasso, direct)."
-
       - name: brand_id
         description: "ID of the brand associated with the payment (foreign key)."
         tests:
@@ -42,13 +36,10 @@ models:
       - name: payment_id
         description: "Unique identifier for the payment."
         tests: [not_null, unique]
-
       - name: payment_type
         description: "Type/category of the payment source (helloasso, crm, etc.)"
-
       - name: amount
         description: "Paid amount in euros."
-
       - name: user_id
         description: "User linked to the payment (foreign key)."
         tests:
@@ -56,7 +47,6 @@ models:
               name: fk_user_id_all_payments
               to: ref('stg_user')
               field: user_id
-
       - name: interaction_id
         description: "If applicable, links payment to a tracked user interaction (foreign key)."
         tests:
@@ -64,10 +54,8 @@ models:
               name: fk_interaction_id_all_payments
               to: ref('stg_interaction')
               field: interaction_id
-
       - name: created_at
         description: "Timestamp of payment creation."
-
       - name: brand_id
         description: "Brand associated with the payment (foreign key)."
         tests:
@@ -75,3 +63,149 @@ models:
               name: fk_brand_id_all_payments
               to: ref('stg_brand')
               field: brand_id
+
+  - name: int_fact_ha__payment
+    description: "Normalizes HelloAsso payments and classifies known user genders for downstream analytics."
+    columns:
+      - name: payment_id
+        description: "Unique HelloAsso payment ID."
+        tests: [not_null, unique]
+      - name: user_id
+        description: "Hashed user identifier based on email."
+        tests: [not_null]
+      - name: amount
+        description: "Payment amount."
+      - name: payment_status
+        description: "Status of the HelloAsso payment."
+      - name: payment_date
+        description: "Datetime of payment formatted consistently."
+      - name: payment_type
+        description: "Hardcoded as 'helloasso'."
+      - name: payer_email
+        description: "Original payer email used for hashing."
+      - name: payer_first_name
+        description: "Extracted first name from payer JSON."
+      - name: payer_last_name
+        description: "Extracted last name from payer JSON."
+      - name: payer_country
+        description: "Extracted country from payer JSON."
+      - name: payer_gender
+        description: "Hardcoded mapping of known users to gender."
+
+  - name: int_fact__account
+    description: "Represents unique Instagram accounts tracked across media and stories."
+    columns:
+      - name: account_id
+        description: "Unique identifier for the Instagram account."
+        tests: [not_null, unique]
+      - name: name
+        description: "Account display name."
+      - name: ig_id
+        description: "Internal Instagram account ID."
+      - name: page_id
+        description: "Facebook page ID connected to account."
+      - name: website
+        description: "Profile URL or external website."
+      - name: username
+        description: "Instagram handle."
+      - name: biography
+        description: "Profile description."
+      - name: media_count
+        description: "Total media count."
+      - name: follows_count
+        description: "Count of accounts this user follows."
+      - name: followers_count
+        description: "Count of followers."
+      - name: profile_picture_url
+        description: "Link to profile image."
+      - name: inserted_at
+        description: "Insertion timestamp."
+
+  - name: int_fact_ig__user_daily_metrics
+    description: "Daily Instagram performance metrics at user level."
+    columns:
+      - name: insight_date
+        description: "Date of insight."
+        tests: [not_null]
+      - name: page_id
+        description: "Facebook page ID associated with user."
+      - name: reach
+      - name: reach_week
+      - name: reach_days_28
+      - name: follower_count
+      - name: online_followers_value
+      - name: business_account_id
+
+  - name: int_fact_ig__user_lifetime_metrics
+    description: "Latest historical insight values per metric and breakdown."
+    columns:
+      - name: metric
+        description: "Name of metric (e.g. impressions)."
+        tests: [not_null]
+      - name: breakdown
+        description: "Breakdown dimension (e.g. country)."
+        tests: [not_null]
+      - name: metric_value
+        description: "Numeric value extracted from JSON."
+      - name: date
+        description: "Timestamp of latest recorded value."
+      - name: business_account_id
+        description: "Page or business account reference."
+
+  - name: int_fact_ig_stg__media
+    description: "Merged view of Instagram media with performance metrics."
+    columns:
+      - name: media_id
+        tests: [not_null, unique]
+      - name: media_ig_id
+      - name: media_caption
+      - name: media_page_id
+      - name: owner_id
+      - name: first_child_id
+      - name: media_username
+      - name: media_url
+      - name: media_permalink
+      - name: media_shortcode
+      - name: media_timestamp
+      - name: raw_like_count
+      - name: media_type
+      - name: media_thumbnail_url
+      - name: media_comments_count
+      - name: media_comment_enabled
+      - name: media_product_type
+      - name: business_account_id
+      - name: metrics_likes
+      - name: metrics_reach
+      - name: metrics_saved
+      - name: metrics_shares
+      - name: metrics_follows
+      - name: metrics_comments
+      - name: metrics_profile_visits
+      - name: metrics_total_interactions
+      - name: metrics_avg_watch_time
+      - name: metrics_view_time
+
+  - name: int_fact_stg__stories
+    description: "Merged view of Instagram stories with insights."
+    columns:
+      - name: story_id
+        tests: [not_null, unique]
+      - name: story_ig_id
+      - name: story_caption
+      - name: story_page_id
+      - name: story_username
+      - name: story_url
+      - name: story_permalink
+      - name: story_shortcode
+      - name: story_timestamp
+      - name: raw_like_count
+      - name: story_type
+      - name: story_thumbnail_url
+      - name: story_product_type
+      - name: business_account_id
+      - name: metrics_reach
+      - name: metrics_shares
+      - name: metrics_follows
+      - name: metrics_replies
+      - name: metrics_profile_visits
+      - name: metrics_total_interactions

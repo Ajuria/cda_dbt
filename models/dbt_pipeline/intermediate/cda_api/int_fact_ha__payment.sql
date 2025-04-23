@@ -1,4 +1,4 @@
--- models/dbt_pipeline/intermediate/cda_api/int_fact__payment.sql
+-- models/dbt_pipeline/intermediate/cda_api/int_fact_ha__payment.sql
 
 {{ config(materialized='view') }}
 
@@ -14,7 +14,7 @@ WITH base AS (
         p.payer_first_name,
         p.payer_last_name,
         p.payer_country
-    FROM {{ ref('stg__payments') }} p
+    FROM {{ ref('stg_ha__payments') }} p
 )
 
 SELECT

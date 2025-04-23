@@ -5,73 +5,161 @@ sources:
     database: cda-database
     schema: cda_api
     tables:
-      - name: helloasso_payment
-        description: "Full historical record of online payments processed via HelloAsso."
-        columns:
-          - name: payment_id
-            description: "Unique identifier for the payment transaction."
-          - name: amount
-            description: "Amount paid in euros."
-          - name: payment_status
-            description: "Status of the payment (e.g. succeeded, failed)."
-          - name: payer_json
-            description: "Raw JSON object containing payer information."
-          - name: payment_date
-            description: "Timestamp of the payment event."
-          - name: payer_email
-            description: "Email address of the payer extracted from the JSON payload."
-          - name: payer_first_name
-            description: "First name of the payer extracted from the JSON payload."
-          - name: payer_last_name
-            description: "Last name of the payer extracted from the JSON payload."
-          - name: payer_country
-            description: "Country of the payer extracted from the JSON payload."
-          - name: ingested_at
-            description: "Ingestion timestamp of the record (generated during dbt run)."
       - name: payments
-        description: "Raw HelloAsso payment data used as base input for stg_payments."
+        description: "Raw HelloAsso payment data"
+        columns:
+          - name: id
+            description: "Payment ID (rename as payment_id in stg_ha__payments)"
+          - name: amount
+          - name: payment_status
+          - name: payer_json
+          - name: payment_date
+          - name: ingested_at
+
+      - name: media
+      - name: media_insights
+      - name: stories
+      - name: story_insights
+      - name: user_insights
+      - name: user_lifetime_insights
+      - name: users
 
 models:
-  - name: stg_payments
-    description: "Staging of HelloAsso payments enriched with parsed payer metadata."
+  - name: stg_ha__payments
+    description: "Staging model that renames raw HelloAsso payment fields and parses JSON"
     columns:
       - name: payment_id
-        description: "Unique identifier for the payment transaction."
-        tests: [not_null, unique]  # PRIMARY KEY
-
+        description: "Renamed from 'id'"
+        tests: [not_null, unique]
       - name: amount
-        description: "Amount paid in euros."
         tests: [not_null]
-
       - name: payment_status
-        description: "Status of the payment (e.g. succeeded, failed)."
         tests: [not_null]
-
       - name: raw_payer_json
-        description: "Original JSON structure from HelloAsso containing payer metadata."
+        description: "Original HelloAsso JSON blob"
         tests: [not_null]
-
       - name: payment_date
-        description: "Timestamp when the payment was processed."
+        description: "Cleaned timestamp"
         tests: [not_null]
-
       - name: payer_email
-        description: "Email address of the payer."
-        tests:
-          - relationships:
-              name: fk_payer_email_in_payments
-              to: ref('stg_user')
-              field: email
-
+        description: "Extracted email from JSON"
       - name: payer_first_name
-        description: "First name of the payer."
-
       - name: payer_last_name
-        description: "Last name of the payer."
-
       - name: payer_country
-        description: "Country information of the payer."
-
       - name: ingested_at
-        description: "Timestamp when the record was ingested into the data warehouse (calculated column)."
+        description: "Record ingestion timestamp"
         tests: [not_null]
+
+  - name: stg_ig__media
+    description: "Instagram media posts"
+    columns:
+      - name: id
+        tests: [not_null, unique]
+      - name: ig_id
+      - name: caption
+      - name: page_id
+      - name: owner
+      - name: children
+      - name: username
+      - name: media_url
+      - name: permalink
+      - name: shortcode
+      - name: timestamp
+      - name: like_count
+      - name: media_type
+      - name: thumbnail_url
+      - name: comments_count
+      - name: is_comment_enabled
+      - name: media_product_type
+      - name: business_account_id
+
+  - name: stg_ig__media_insights
+    description: "Metrics for each Instagram media post"
+    columns:
+      - name: id
+        tests: [not_null, unique]
+      - name: likes
+      - name: reach
+      - name: saved
+      - name: shares
+      - name: follows
+      - name: page_id
+      - name: comments
+      - name: profile_visits
+      - name: total_interactions
+      - name: ig_reels_avg_watch_time
+      - name: ig_reels_video_view_total_time
+      - name: business_account_id
+
+  - name: stg_ig__stories
+    description: "Instagram stories"
+    columns:
+      - name: id
+        tests: [not_null, unique]
+      - name: ig_id
+      - name: caption
+      - name: page_id
+      - name: username
+      - name: media_url
+      - name: permalink
+      - name: shortcode
+      - name: timestamp
+      - name: like_count
+      - name: media_type
+      - name: thumbnail_url
+      - name: media_product_type
+      - name: business_account_id
+
+  - name: stg_ig__story_insights
+    description: "Instagram story metrics"
+    columns:
+      - name: id
+        tests: [not_null, unique]
+      - name: reach
+      - name: shares
+      - name: follows
+      - name: page_id
+      - name: replies
+      - name: profile_visits
+      - name: total_interactions
+      - name: business_account_id
+
+  - name: stg_ig__user_insights
+    description: "Daily stats on reach and followers"
+    columns:
+      - name: date
+        tests: [not_null]
+      - name: reach
+      - name: page_id
+      - name: reach_week
+      - name: reach_days_28
+      - name: follower_count
+      - name: online_followers_value
+      - name: business_account_id
+
+  - name: stg_ig__user_lifetime_insights
+    description: "Account-level historical Instagram metrics"
+    columns:
+      - name: value
+        description: "Raw JSON metric value"
+      - name: metric
+      - name: page_id
+      - name: breakdown
+      - name: business_account_id
+
+  - name: stg_ig__users
+    description: "Instagram account metadata"
+    columns:
+      - name: id
+        tests: [not_null, unique]
+      - name: name
+      - name: ig_id
+      - name: page_id
+      - name: website
+      - name: username
+      - name: biography
+      - name: media_count
+      - name: follows_count
+      - name: followers_count
+      - name: profile_picture_url
+

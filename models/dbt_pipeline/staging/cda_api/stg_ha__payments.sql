@@ -20,5 +20,3 @@ SELECT
   FORMAT_TIMESTAMP('%F %T', CURRENT_TIMESTAMP()) AS ingested_at,
   payer                                 AS raw_payer_json
 FROM {{ source('cda_api', 'payments') }}
-
-

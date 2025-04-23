@@ -1,7 +1,9 @@
 -- models/dbt_pipeline/intermediate/cda_owned/int_fact__session.sql
 
+{{ config(materialized='view') }}
+
 SELECT
-  SUBSTR(TO_HEX(SHA256(s.session_id)), 1, 16)                   AS session_id,
+  SUBSTR(TO_HEX(SHA256(CAST(s.session_id AS STRING))), 1, 16) AS session_id,
 
   COALESCE(
     SUBSTR(TO_HEX(SHA256(CAST(s.user_id AS STRING))), 1, 16),
