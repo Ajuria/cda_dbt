@@ -19,6 +19,8 @@ sources:
         description: "Attendance records for events."
       - name: wp_pages
         description: "Raw WordPress table with static page content."
+      - name: project
+        description: "Raw WordPress 'project' post type containing exhibition and artist entries."
 
 models:
   - name: stg_art_show
@@ -217,16 +219,52 @@ models:
       - name: user_id
         description: "Unified user identifier (hashed or inherited from interaction/session)."
         tests: [not_null]
-
       - name: login_platform
         description: "Platform through which the user was identified or inferred (helloasso, wordpress, instagram, facebook, anonymous)."
         tests:
           - accepted_values:
               values: ['helloasso', 'wordpress', 'instagram', 'facebook', 'anonymous']
-
       - name: email
         description: "Email address of the user, when available."
-
       - name: source_table
         description: "Table name from which the login record originates (e.g. cda_api.payments, cda_owned.user, etc.)"
         tests: [not_null]
+
+  - name: stg_wp__project
+    description: "Staging model for WordPress `project` post type used for exhibitions and artist profiles."
+    columns:
+      - name: project_id
+        description: "Unique identifier for the project post."
+        tests: [not_null, unique]
+      - name: slug
+        description: "URL-friendly slug of the post."
+      - name: link
+        description: "Full WordPress link to the post."
+      - name: title
+        description: "Rendered title of the project."
+      - name: status
+        description: "Post status (typically 'publish')."
+      - name: type
+        description: "Post type (should be 'project')."
+      - name: author_id
+        description: "ID of the user authoring the post."
+      - name: featured_media_id
+        description: "ID of the associated media item."
+      - name: categories
+        description: "List of category IDs linked to the post."
+      - name: class_list
+        description: "HTML class list of the post."
+      - name: content_rendered
+        description: "Main HTML-rendered content body."
+      - name: created_at
+        description: "Formatted creation timestamp."
+      - name: modified_at
+        description: "Formatted last modification timestamp."
+      - name: _airbyte_raw_id
+        description: "Raw Airbyte internal ID."
+      - name: _airbyte_extracted_at
+        description: "Airbyte extraction timestamp."
+      - name: _airbyte_meta
+        description: "Airbyte metadata."
+      - name: _airbyte_generation_id
+        description: "Airbyte internal generation tracking ID."
