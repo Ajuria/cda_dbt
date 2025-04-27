@@ -1,0 +1,107 @@
+version: 2
+
+models:
+  - name: int_fact__session
+    description: "Final session fact table with deduplicated user IDs, metadata, and campaign codes."
+    columns:
+      - name: session_id
+        description: "Shortened SHA256 session identifier."
+      - name: user_id
+        description: "Unified user ID (fallback to session-based ID if unknown)."
+        tests:
+          - relationships:
+              name: fk_user_id_fact_session
+              to: ref('int_fact__user')
+              field: user_id
+      - name: source_platform
+        description: "Platform where the session originated (e.g., cda_website, instagram, etc.)."
+      - name: session_source_url
+        description: "Cleaned URL that initiated the session (relative path)."
+      - name: started_at
+        description: "Session start timestamp, formatted without seconds."
+      - name: ended_at
+        description: "Session end timestamp, formatted without seconds."
+      - name: device
+        description: "Device used in the session (browser, mobile, etc.)."
+      - name: geo_ip
+        description: "IP address of the user during the session."
+      - name: geo_name
+        description: "Location name resolved from IP."
+      - name: brand_id
+        description: "Associated brand_id if session originated from a branded action (optional)."
+
+  - name: int_fact__user
+    description: "Unified user table deduplicating logins from all platforms (HelloAsso, WordPress, Facebook, Instagram, Anonymous)."
+    columns:
+      - name: user_id
+        description: "Shortened and hashed user ID, platform-dependent."
+        tests: [not_null, unique]
+      - name: login_platform
+        description: "Source platform where the user was authenticated or detected (e.g., helloasso, wordpress, facebook, etc.)."
+      - name: email
+        description: "User email address if known."
+      - name: source_table
+        description: "Source table from which the user record originated."
+      - name: first_name
+        description: "First name of the user if available."
+      - name: last_name
+        description: "Last name of the user if available."
+      - name: country
+        description: "Country associated with the user if available."
+      - name: user_type_id
+        description: "Optional user classification (visitor_guest, visitor_premium, etc.)."
+      - name: created_at
+        description: "Timestamp when the user was created in the original platform."
+      - name: updated_at
+        description: "Timestamp when the user was last updated."
+      - name: ingested_at
+        description: "Ingestion timestamp of the user record into the system."
+      - name: gender
+        description: "Gender inferred manually for a small set of known user_ids."
+
+  - name: int_fact__interaction
+    description: "Unified interaction events with user, session, source mapping and QR code classification."
+    columns:
+      - name: interaction_id
+        description: "Shortened hashed interaction ID."
+        tests: [not_null, unique]
+      - name: session_id
+        description: "Shortened session ID linked to the interaction."
+      - name: user_id
+        description: "User performing the interaction (if known)."
+      - name: source_platform
+        description: |
+          Platform where the interaction happened.
+          Possible values:
+          - cda_website
+          - third_party_website
+          - instagram
+          - facebook
+          - helloasso
+          - qr_code
+      - name: target_mapping
+        description: |
+          Target section or page reached through the interaction.
+          Possible values:
+          - cda_website_programme
+          - cda_website_artistes
+          - cda_website_event
+          - cda_website_a_propos
+          - cda_website_actualites
+          - cda_website_reserver
+      - name: cda_website_source
+        description: "Source page on the CDA website cleaned of the domain and 'category' prefix."
+      - name: social_media_action
+        description: "Type of social media action (e.g., like, share) if interaction came from social networks."
+      - name: interaction_label
+        description: "Page or post title extracted from JSON details if available."
+      - name: event_timestamp
+        description: "Timestamp of when the interaction occurred (formatted without seconds)."
+      - name: device
+        description: "Device used during the interaction."
+      - name: geo_ip
+        description: "User IP address during the interaction."
+      - name: geo_name
+        description: "Resolved city/location from the IP address."
+      - name: brand_id
+        description: "Associated brand for the interaction if applicable."

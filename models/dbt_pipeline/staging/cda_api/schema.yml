@@ -9,49 +9,71 @@ sources:
         description: "Raw HelloAsso payment data"
         columns:
           - name: id
-            description: "Payment ID (rename as payment_id in stg_ha__payments)"
+            description: "Payment ID (renamed as payment_id in stg_ha__payments)"
+            tests: [not_null, unique]
           - name: amount
-          - name: payment_status
-          - name: payer_json
-          - name: payment_date
-          - name: ingested_at
+            description: "Payment amount in cents."
+          - name: state
+            description: "Payment status."
+          - name: payer
+            description: "Raw payer JSON object."
+          - name: date
+            description: "Payment timestamp."
 
       - name: media
+        description: "Raw Instagram media posts."
+
       - name: media_insights
+        description: "Raw insights for Instagram media posts."
+
       - name: stories
+        description: "Raw Instagram stories."
+
       - name: story_insights
+        description: "Raw insights for Instagram stories."
+
       - name: user_insights
+        description: "Daily Instagram user insights (reach, followers)."
+
       - name: user_lifetime_insights
+        description: "Instagram user lifetime metrics."
+
       - name: users
+        description: "Instagram user account metadata."
 
 models:
   - name: stg_ha__payments
-    description: "Staging model that renames raw HelloAsso payment fields and parses JSON"
+    description: "Staging model for HelloAsso payments, parsed and cleaned."
     columns:
       - name: payment_id
-        description: "Renamed from 'id'"
+        description: "Unique payment identifier."
         tests: [not_null, unique]
       - name: amount
+        description: "Payment amount in euros."
         tests: [not_null]
       - name: payment_status
-        tests: [not_null]
-      - name: raw_payer_json
-        description: "Original HelloAsso JSON blob"
+        description: "Status of the payment (ex: accepted, canceled)."
         tests: [not_null]
       - name: payment_date
-        description: "Cleaned timestamp"
+        description: "Parsed payment timestamp."
         tests: [not_null]
       - name: payer_email
-        description: "Extracted email from JSON"
+        description: "Email address of the payer."
       - name: payer_first_name
+        description: "First name of the payer."
       - name: payer_last_name
+        description: "Last name of the payer."
       - name: payer_country
+        description: "Country of the payer."
       - name: ingested_at
-        description: "Record ingestion timestamp"
+        description: "Timestamp when the record was ingested."
+        tests: [not_null]
+      - name: raw_payer_json
+        description: "Original payer JSON blob."
         tests: [not_null]
 
   - name: stg_ig__media
-    description: "Instagram media posts"
+    description: "Instagram media posts."
     columns:
       - name: id
         tests: [not_null, unique]
@@ -59,12 +81,21 @@ models:
       - name: caption
       - name: page_id
       - name: owner
+      - name: owner_id
+        description: "Foreign key to stg_ig__users.id"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ig__users')
+              field: id
       - name: children
+      - name: first_child_id
       - name: username
       - name: media_url
       - name: permalink
       - name: shortcode
       - name: timestamp
+        tests: [not_null]
       - name: like_count
       - name: media_type
       - name: thumbnail_url
@@ -74,7 +105,7 @@ models:
       - name: business_account_id
 
   - name: stg_ig__media_insights
-    description: "Metrics for each Instagram media post"
+    description: "Metrics for each Instagram media post."
     columns:
       - name: id
         tests: [not_null, unique]
@@ -92,18 +123,26 @@ models:
       - name: business_account_id
 
   - name: stg_ig__stories
-    description: "Instagram stories"
+    description: "Instagram stories."
     columns:
       - name: id
         tests: [not_null, unique]
       - name: ig_id
       - name: caption
       - name: page_id
+      - name: owner_id
+        description: "Foreign key to stg_ig__users.id"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ig__users')
+              field: id
       - name: username
       - name: media_url
       - name: permalink
       - name: shortcode
       - name: timestamp
+        tests: [not_null]
       - name: like_count
       - name: media_type
       - name: thumbnail_url
@@ -111,7 +150,7 @@ models:
       - name: business_account_id
 
   - name: stg_ig__story_insights
-    description: "Instagram story metrics"
+    description: "Instagram story metrics."
     columns:
       - name: id
         tests: [not_null, unique]
@@ -125,7 +164,7 @@ models:
       - name: business_account_id
 
   - name: stg_ig__user_insights
-    description: "Daily stats on reach and followers"
+    description: "Daily stats on reach and followers."
     columns:
       - name: date
         tests: [not_null]
@@ -138,17 +177,16 @@ models:
       - name: business_account_id
 
   - name: stg_ig__user_lifetime_insights
-    description: "Account-level historical Instagram metrics"
+    description: "Account-level historical Instagram metrics."
     columns:
       - name: value
-        description: "Raw JSON metric value"
       - name: metric
       - name: page_id
       - name: breakdown
       - name: business_account_id
 
   - name: stg_ig__users
-    description: "Instagram account metadata"
+    description: "Instagram account metadata."
     columns:
       - name: id
         tests: [not_null, unique]
@@ -162,4 +200,3 @@ models:
       - name: follows_count
       - name: followers_count
       - name: profile_picture_url
-

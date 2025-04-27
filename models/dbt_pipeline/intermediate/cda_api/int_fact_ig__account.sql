@@ -37,4 +37,3 @@ SELECT
   profile_picture_url           AS profile_picture_url,
   inserted_at                   AS inserted_at
 FROM deduplicated
-WHERE row_num = 1

@@ -6,7 +6,7 @@ sources:
     schema: cda_owned
     tables:
       - name: wp_posts
-        description: "Raw WordPress table containing all types of content (events, brands, art shows, etc.)"
+        description: "Raw WordPress table containing all types of content (events, brands, art shows, etc.)."
       - name: user
         description: "User table containing identified user records."
       - name: session
@@ -21,217 +21,16 @@ sources:
         description: "Raw WordPress table with static page content."
       - name: project
         description: "Raw WordPress 'project' post type containing exhibition and artist entries."
+      - name: project_page2
+        description: "Raw WordPress 'project_page2' post type containing exhibition and artist entries."
+      - name: project_page3
+        description: "Raw WordPress 'project_page3' post type containing exhibition and artist entries."
+      - name: project_page4
+        description: "Raw WordPress 'project_page4' post type containing exhibition and artist entries."
 
 models:
-  - name: stg_art_show
-    description: "Staging model for art exhibitions sourced from WordPress data."
-    columns:
-      - name: art_show_id
-        description: "Unique identifier for the art show."
-        tests: [not_null, unique]
-      - name: art_show_title
-        description: "Title of the art show."
-      - name: art_show_slug
-        description: "URL-friendly slug for the art show."
-      - name: post_type
-        description: "Type of the WordPress post."
-      - name: post_date
-        description: "Publication date of the post."
-
-  - name: stg_brand
-    description: "Staging model for participating or organizing brands (estates, institutions, etc.)"
-    columns:
-      - name: brand_id
-        description: "Unique identifier for the brand."
-        tests: [not_null, unique]
-      - name: brand_name
-        description: "Name of the brand."
-      - name: brand_slug
-        description: "Slug of the brand."
-      - name: post_type
-        description: "Type of the WordPress post."
-      - name: post_date
-        description: "Creation date of the post."
-      - name: post_modified
-        description: "Last modification timestamp."
-      - name: post_parent
-        description: "Parent post (NULL if none)."
-      - name: user_id
-        description: "ID of the user linked to this brand (foreign key)."
-        tests:
-          - not_null
-          - relationships:
-              name: fk_user_id_in_brand
-              to: ref('stg_user')
-              field: user_id
-
-  - name: stg_event
-    description: "Staging model for events held during the art season."
-    columns:
-      - name: event_id
-        description: "Unique identifier for the event."
-        tests: [not_null, unique]
-      - name: event_name
-        description: "Name of the event."
-      - name: event_type
-        description: "Type of the event."
-      - name: event_start
-        description: "Start datetime of the event."
-      - name: event_end
-        description: "End datetime of the event."
-      - name: updated_at
-        description: "Last updated timestamp."
-
-  - name: stg_event_attendance
-    description: "Staging model for attendance tracking during events."
-    columns:
-      - name: event_attendance_id
-        description: "Unique identifier for the event attendance record."
-        tests: [not_null, unique]
-      - name: event_id
-        description: "ID of the attended event (foreign key)."
-        tests:
-          - not_null
-          - relationships:
-              name: fk_event_id_in_event_attendance
-              to: ref('stg_event')
-              field: event_id
-      - name: user_id
-        description: "ID of the attending user (foreign key)."
-        tests:
-          - not_null
-          - relationships:
-              name: fk_user_id_in_event_attendance
-              to: ref('stg_user')
-              field: user_id
-      - name: attended_at
-        description: "Timestamp of attendance."
-
-  - name: stg_interaction
-    description: "Staging model for digital interactions: QR, clicks, social media."
-    columns:
-      - name: interaction_id
-        description: "Unique identifier for the interaction."
-        tests: [not_null, unique]
-      - name: interaction_type
-        description: "Type of the interaction (e.g., QR scan, click)."
-      - name: source_platform
-        description: "Platform where the interaction occurred."
-      - name: source_url
-        description: "URL from which the interaction was triggered."
-      - name: session_id
-        description: "Session ID linking to the broader session context."
-        tests:
-          - relationships:
-              name: fk_session_id_in_interaction
-              to: ref('stg_session')
-              field: session_id
-      - name: target_id
-        description: "ID of the content/item targeted by the interaction."
-      - name: user_id
-        description: "User ID if known."
-        tests:
-          - relationships:
-              name: fk_user_id_in_interaction
-              to: ref('stg_user')
-              field: user_id
-      - name: social_media_action
-        description: "Action taken on social media, if any."
-      - name: timestamp
-        description: "Timestamp of the interaction."
-      - name: details
-        description: "Additional JSON-formatted details."
-
-  - name: stg_session
-    description: "Staging model for user sessions from the website."
-    columns:
-      - name: session_id
-        description: "Unique identifier for the session."
-        tests: [not_null, unique]
-      - name: source_platform
-        description: "Platform from which the session originated."
-      - name: session_source_url
-        description: "Original URL used to initiate the session."
-      - name: user_id
-        description: "ID of the user if identifiable."
-        tests:
-          - relationships:
-              name: fk_user_id_in_session
-              to: ref('stg_user')
-              field: user_id
-      - name: brand_id
-        description: "Brand associated with the session."
-        tests:
-          - relationships:
-              name: fk_brand_id_in_session
-              to: ref('stg_brand')
-              field: brand_id
-      - name: device
-        description: "Device used during the session."
-      - name: geo_ip
-        description: "IP address used in the session."
-      - name: geo_name
-        description: "Geolocation name derived from IP."
-      - name: started_at
-        description: "Start time of the session."
-      - name: ended_at
-        description: "End time of the session."
-
-  - name: stg_user
-    description: "Staging model for identified users."
-    columns:
-      - name: user_id
-        description: "Unique identifier for the user."
-        tests: [not_null, unique]
-      - name: user_type_id
-        description: "Type classification of the user."
-      - name: first_name
-        description: "First name of the user."
-      - name: last_name
-        description: "Last name of the user."
-      - name: email
-        description: "User email address."
-      - name: country
-        description: "User country of origin."
-      - name: created_at
-        description: "Timestamp of creation."
-      - name: updated_at
-        description: "Timestamp of latest update."
-
-  - name: stg_wp_posts
-    description: "Raw reference of all WordPress content for cross-checks."
-    columns:
-      - name: post_id
-        description: "ID of the post."
-        tests: [not_null, unique]
-      - name: post_title
-        description: "Title of the post."
-      - name: post_slug
-        description: "Slug of the post."
-      - name: post_type
-        description: "Type of WordPress content."
-      - name: post_date
-        description: "Date of publication."
-
-  - name: stg_login
-    description: "Staging model aggregating all possible user login origins (HelloAsso, WordPress, Facebook, Instagram, Anonymous sessions)."
-    columns:
-      - name: user_id
-        description: "Unified user identifier (hashed or inherited from interaction/session)."
-        tests: [not_null]
-      - name: login_platform
-        description: "Platform through which the user was identified or inferred (helloasso, wordpress, instagram, facebook, anonymous)."
-        tests:
-          - accepted_values:
-              values: ['helloasso', 'wordpress', 'instagram', 'facebook', 'anonymous']
-      - name: email
-        description: "Email address of the user, when available."
-      - name: source_table
-        description: "Table name from which the login record originates (e.g. cda_api.payments, cda_owned.user, etc.)"
-        tests: [not_null]
-
   - name: stg_wp__project
-    description: "Staging model for WordPress `project` post type used for exhibitions and artist profiles."
+    description: "Staging model for WordPress `project` post type used for exhibitions, artists, and event content."
     columns:
       - name: project_id
         description: "Unique identifier for the project post."
@@ -248,23 +47,220 @@ models:
         description: "Post type (should be 'project')."
       - name: author_id
         description: "ID of the user authoring the post."
+        tests:
+          - relationships:
+              to: ref('stg_wp__user')
+              field: id
+              severity: warn
+      - name: featured_media_id
+        description: "ID of the associated media item (image or media)."
+      - name: categories
+        description: "List of WordPress category IDs linked to the post."
+      - name: class_list
+        description: "HTML class list assigned to the post."
+      - name: content_rendered
+        description: "Main body of the post in rendered HTML."
+      - name: created_at
+        description: "Formatted local creation timestamp."
+        tests: [not_null]
+      - name: modified_at
+        description: "Formatted local last modification timestamp."
+        tests: [not_null]
+      - name: brand_id
+        description: "Foreign key to brand entity if applicable."
+      - name: artist_id
+        description: "Foreign key to artist entity if applicable."
+      - name: art_show_id
+        description: "Foreign key to art show entity if applicable."
+      - name: event_id
+        description: "Foreign key to event entity if applicable."
+      - name: _airbyte_meta
+        description: "Airbyte metadata associated with the record."
+      - name: _airbyte_generation_id
+        description: "Airbyte internal generation tracking ID."
+
+  - name: stg_wp__project_page2
+    description: "Staging model for WordPress `project_page2` post type used for exhibitions, artists, and event content."
+    columns:
+      - name: project_id
+        description: "Unique identifier for the project_page2 post."
+        tests: [not_null, unique]
+      - name: slug
+        description: "URL-friendly slug of the post."
+      - name: link
+        description: "Full WordPress link to the post."
+      - name: title
+        description: "Rendered title of the project."
+      - name: status
+        description: "Post status (typically 'publish')."
+      - name: type
+        description: "Post type (should be 'project_page2')."
+      - name: author_id
+        description: "ID of the user authoring the post."
+        tests:
+          - relationships:
+              to: ref('stg_wp__user')
+              field: id
+              severity: warn
       - name: featured_media_id
         description: "ID of the associated media item."
       - name: categories
         description: "List of category IDs linked to the post."
       - name: class_list
-        description: "HTML class list of the post."
+        description: "HTML class list assigned to the post."
       - name: content_rendered
-        description: "Main HTML-rendered content body."
+        description: "Main body of the post in rendered HTML."
       - name: created_at
-        description: "Formatted creation timestamp."
-      - name: modified_at
-        description: "Formatted last modification timestamp."
+        description: "Formatted local creation timestamp."
+        tests: [not_null]
+      - name: created_at_gmt
+        description: "Formatted GMT creation timestamp."
+      - name: modified
+        description: "Raw modification datetime."
+        tests: [not_null]
+      - name: template
+        description: "WordPress template assigned to the post."
+      - name: modified_gmt
+        description: "Formatted GMT last modification timestamp."
+      - name: brand_id
+        description: "Foreign key to brand entity if applicable."
+      - name: artist_id
+        description: "Foreign key to artist entity if applicable."
+      - name: art_show_id
+        description: "Foreign key to art show entity if applicable."
+      - name: event_id
+        description: "Foreign key to event entity if applicable."
       - name: _airbyte_raw_id
-        description: "Raw Airbyte internal ID."
+        description: "Internal Airbyte record ID."
+        tests: [not_null, unique]
       - name: _airbyte_extracted_at
-        description: "Airbyte extraction timestamp."
+        description: "Timestamp when Airbyte extracted this record."
+        tests: [not_null]
       - name: _airbyte_meta
-        description: "Airbyte metadata."
+        description: "Airbyte metadata associated with the record."
+      - name: _airbyte_generation_id
+        description: "Airbyte internal generation tracking ID."
+
+  - name: stg_wp__project_page3
+    description: "Staging model for WordPress `project_page3` post type used for exhibitions, artists, and event content."
+    columns:
+      - name: project_id
+        description: "Unique identifier for the project_page3 post."
+        tests: [not_null, unique]
+      - name: slug
+        description: "URL-friendly slug of the post."
+      - name: link
+        description: "Full WordPress link to the post."
+      - name: title
+        description: "Rendered title of the project."
+      - name: status
+        description: "Post status (typically 'publish')."
+      - name: type
+        description: "Post type (should be 'project_page3')."
+      - name: author_id
+        description: "ID of the user authoring the post."
+        tests:
+          - relationships:
+              to: ref('stg_wp__user')
+              field: id
+              severity: warn
+      - name: featured_media_id
+        description: "ID of the associated media item."
+      - name: categories
+        description: "List of category IDs linked to the post."
+      - name: class_list
+        description: "HTML class list assigned to the post."
+      - name: content_rendered
+        description: "Main body of the post in rendered HTML."
+      - name: created_at
+        description: "Formatted local creation timestamp."
+        tests: [not_null]
+      - name: created_at_gmt
+        description: "Formatted GMT creation timestamp."
+      - name: modified
+        description: "Raw modification datetime."
+        tests: [not_null]
+      - name: template
+        description: "WordPress template assigned to the post."
+      - name: modified_gmt
+        description: "Formatted GMT last modification timestamp."
+      - name: brand_id
+        description: "Foreign key to brand entity if applicable."
+      - name: artist_id
+        description: "Foreign key to artist entity if applicable."
+      - name: art_show_id
+        description: "Foreign key to art show entity if applicable."
+      - name: event_id
+        description: "Foreign key to event entity if applicable."
+      - name: _airbyte_raw_id
+        description: "Internal Airbyte record ID."
+        tests: [not_null, unique]
+      - name: _airbyte_extracted_at
+        description: "Timestamp when Airbyte extracted this record."
+        tests: [not_null]
+      - name: _airbyte_meta
+        description: "Airbyte metadata associated with the record."
+      - name: _airbyte_generation_id
+        description: "Airbyte internal generation tracking ID."
+
+  - name: stg_wp__project_page4
+    description: "Staging model for WordPress `project_page4` post type used for exhibitions, artists, and event content."
+    columns:
+      - name: project_id
+        description: "Unique identifier for the project_page4 post."
+        tests: [not_null, unique]
+      - name: slug
+        description: "URL-friendly slug of the post."
+      - name: link
+        description: "Full WordPress link to the post."
+      - name: title
+        description: "Rendered title of the project."
+      - name: status
+        description: "Post status (typically 'publish')."
+      - name: type
+        description: "Post type (should be 'project_page4')."
+      - name: author_id
+        description: "ID of the user authoring the post."
+        tests:
+          - relationships:
+              to: ref('stg_wp__user')
+              field: id
+              severity: warn
+      - name: featured_media_id
+        description: "ID of the associated media item."
+      - name: categories
+        description: "List of category IDs linked to the post."
+      - name: class_list
+        description: "HTML class list assigned to the post."
+      - name: content_rendered
+        description: "Main body of the post in rendered HTML."
+      - name: created_at
+        description: "Formatted local creation timestamp."
+        tests: [not_null]
+      - name: created_at_gmt
+        description: "Formatted GMT creation timestamp."
+      - name: modified
+        description: "Raw modification datetime."
+        tests: [not_null]
+      - name: template
+        description: "WordPress template assigned to the post."
+      - name: modified_gmt
+        description: "Formatted GMT last modification timestamp."
+      - name: brand_id
+        description: "Foreign key to brand entity if applicable."
+      - name: artist_id
+        description: "Foreign key to artist entity if applicable."
+      - name: art_show_id
+        description: "Foreign key to art show entity if applicable."
+      - name: event_id
+        description: "Foreign key to event entity if applicable."
+      - name: _airbyte_raw_id
+        description: "Internal Airbyte record ID."
+        tests: [not_null, unique]
+      - name: _airbyte_extracted_at
+        description: "Timestamp when Airbyte extracted this record."
+        tests: [not_null]
+      - name: _airbyte_meta
+        description: "Airbyte metadata associated with the record."
       - name: _airbyte_generation_id
         description: "Airbyte internal generation tracking ID."

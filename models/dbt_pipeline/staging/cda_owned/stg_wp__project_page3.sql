@@ -2,24 +2,31 @@
 
 WITH raw AS (
     SELECT *
-    FROM {{ source('cda_owned', 'project') }}
+    FROM {{ source('cda_owned', 'project_page3') }}
 ),
 
 main AS (
     SELECT
-        CAST(raw.id AS STRING)                                          AS project_id,
-        raw.slug,
-        raw.link,
-        raw.title.rendered                                               AS title,
-        raw.status,
-        raw.type,
-        CAST(raw.author AS STRING)                                       AS author_id,
-        CAST(raw.featured_media AS STRING)                               AS featured_media_id,
-        REGEXP_REPLACE(TO_JSON_STRING(raw.categories), r'[\[\]]', '')    AS categories,
-        REGEXP_REPLACE(TO_JSON_STRING(raw.class_list), r'[\[\]"]', '')   AS class_list,
-        raw.content.rendered                                             AS content_rendered,
-        FORMAT_TIMESTAMP('%F %H:%M', CAST(raw.date AS TIMESTAMP))        AS created_at,
-        FORMAT_TIMESTAMP('%F %H:%M', CAST(raw.modified AS TIMESTAMP))    AS modified_at,
+        _airbyte_raw_id,
+        _airbyte_extracted_at,
+        _airbyte_meta,
+        _airbyte_generation_id,
+        CAST(id AS STRING)                                               AS project_id,
+        slug,
+        link,
+        title.rendered                                                    AS title,
+        status,
+        type,
+        CAST(author AS STRING)                                            AS author_id,
+        CAST(featured_media AS STRING)                                    AS featured_media_id,
+        REGEXP_REPLACE(TO_JSON_STRING(categories), r'[\[\]]', '')         AS categories,
+        REGEXP_REPLACE(TO_JSON_STRING(class_list), r'[\[\]"]', '')        AS class_list,
+        content,
+        FORMAT_TIMESTAMP('%F %H:%M', CAST(date AS TIMESTAMP))             AS created_at,
+        FORMAT_TIMESTAMP('%F %H:%M', CAST(date_gmt AS TIMESTAMP))         AS created_at_gmt,
+        modified,
+        template,
+        modified_gmt,
 
         -- Hard-coded brand_id
         CASE

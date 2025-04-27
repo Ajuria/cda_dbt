@@ -1,29 +1,42 @@
--- models/dbt_pipeline/intermediate/cda_owned/int_fact__session.sql
-
 {{ config(materialized='view') }}
 
+WITH base_session AS (
+
+    SELECT
+        -- Hash session_id
+        SUBSTR(TO_HEX(SHA256(CAST(session_id AS STRING))), 1, 16) AS session_id,
+
+        -- Map numeric source_platform to readable string
+        CASE CAST(source_platform AS INT64)
+            WHEN 1 THEN 'cda_website'
+            WHEN 2 THEN 'third_party_website'
+            WHEN 3 THEN 'instagram'
+            WHEN 4 THEN 'facebook'
+            WHEN 5 THEN 'helloasso'
+            WHEN 6 THEN 'qr_code'
+            ELSE 'unknown'
+        END AS source_platform,
+
+        -- Website source cleaned
+        session_source_url,
+
+        -- user_id generated (already hashed at stg__session level)
+        SUBSTR(TO_HEX(SHA256(CAST(COALESCE(user_id, session_id) AS STRING))), 1, 16) AS user_id,
+
+        -- Other session metadata
+        CAST(brand_id AS STRING) AS brand_id,
+        CAST(device AS STRING)   AS device,
+        CAST(geo_ip AS STRING)   AS geo_ip,
+        CAST(geo_name AS STRING) AS geo_name,
+
+        -- Format timestamps without seconds
+        FORMAT_TIMESTAMP('%F %H:%M:00', CAST(started_at AS TIMESTAMP)) AS started_at,
+        FORMAT_TIMESTAMP('%F %H:%M:00', CAST(ended_at AS TIMESTAMP)) AS ended_at
+
+    FROM {{ ref('stg__session') }}
+
+)
+
 SELECT
-  SUBSTR(TO_HEX(SHA256(CAST(s.session_id AS STRING))), 1, 16) AS session_id,
-
-  COALESCE(
-    SUBSTR(TO_HEX(SHA256(CAST(s.user_id AS STRING))), 1, 16),
-    SUBSTR(TO_HEX(SHA256(CAST(s.session_id AS STRING))), 1, 16)
-  ) AS user_id,
-
-  s.source_platform,
-  s.session_source_url,
-  REGEXP_EXTRACT(s.session_source_url, r'code=([^&]+)')         AS code,
-  CAST(s.started_at AS TIMESTAMP)                               AS started_at,
-  CAST(s.ended_at AS TIMESTAMP)                                 AS ended_at,
-  s.device,
-  s.geo_ip,
-  s.geo_name,
-  u.email,
-  u.country
-
-FROM {{ ref('stg__session') }} s
-LEFT JOIN {{ ref('int_fact__user') }} u
-  ON u.user_id = COALESCE(
-    SUBSTR(TO_HEX(SHA256(CAST(s.user_id AS STRING))), 1, 16),
-    SUBSTR(TO_HEX(SHA256(CAST(s.session_id AS STRING))), 1, 16)
-  )
+    *
+FROM base_session

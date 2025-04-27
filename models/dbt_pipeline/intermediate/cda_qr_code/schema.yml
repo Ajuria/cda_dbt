@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: int_qr_code__unified
+    description: "Unified table of QR code content and their display pages, combining all WordPress project streams."
+    columns:
+      - name: source_id
+        description: "ID of the QR code content from project or project pages."
+        tests:
+          - not_null
+
+      - name: source_table
+        description: "Source table name indicating origin of the QR code content (project, project_page2, etc.)."
+        tests:
+          - not_null
+
+      - name: content_slug
+        description: "Slug (URL-friendly identifier) of the QR code content."
+        tests:
+          - not_null
+
+      - name: content_title
+        description: "Title of the QR code content."
+
+      - name: display_post_id
+        description: "WordPress page post ID where the QR code is displayed (if linked)."
+
+      - name: display_post_title
+        description: "Title of the WordPress page where the QR code is displayed."
+
+      - name: display_post_slug
+        description: "Slug (URL-friendly identifier) of the WordPress page displaying the QR code."
+
+      - name: display_post_type
+        description: "Post type (should be 'page') where the QR code is placed."
+
+      - name: display_post_date
+        description: "Publication date of the WordPress page displaying the QR code."
