@@ -21,7 +21,6 @@ main AS (
             r'\?.*$', ''
         ) AS slug_cleaned,
 
-        -- 🛠 Ajout page_id_final propre
         SUBSTR(TO_HEX(SHA256(
             CAST(
                 REGEXP_REPLACE(

@@ -18,7 +18,14 @@ main AS (
 
         slug,
 
-        -- 🛠 Ajout page_id_final propre
+        REGEXP_REPLACE(
+            REGEXP_REPLACE(
+                LOWER(TRIM(slug)),
+                r'/$', ''
+            ),
+            r'\?.*$', ''
+        ) AS slug_cleaned,
+
         SUBSTR(TO_HEX(SHA256(
             CAST(
                 REGEXP_REPLACE(

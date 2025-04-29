@@ -1,57 +1,60 @@
 version: 2
 
 models:
+
+  - name: int_qr_code__scan
+    description: "Fact table recording individual QR code scans linked to website sessions, enriched with metadata from QR mappings."
+    columns:
+      - name: session_id
+        description: "Shortened hashed session ID extracted from QR code session."
+        tests: [not_null]
+      - name: user_id
+        description: "Unified user ID derived from session or login when available."
+        tests: [not_null]
+      - name: slug
+        description: "Slug captured from the session source URL (trailing components)."
+      - name: event_timestamp
+        description: "Timestamp when the QR code scan occurred (format '%F %H:%M')."
+      - name: brand_id
+        description: "Resolved brand ID associated with the scanned content."
+      - name: art_show_id
+        description: "Resolved art show ID associated with the scanned content."
+      - name: event_id
+        description: "Resolved event ID associated with the scanned content."
+      - name: artist_id
+        description: "Resolved artist ID associated with the scanned content."
+      - name: is_unmapped_scan
+        description: "Flag indicating whether the QR scan was not mapped to any known entity (TRUE if unmapped)."
+
   - name: int_qr_code__unified
-    description: "Consolidated QR code content and display page mapping, combining all project streams and WordPress page details."
+    description: "Consolidated QR code content table combining project pages and fixed pages with WordPress display post metadata."
     columns:
       - name: source_id
-        description: "ID of the QR code content sourced from project or project pages."
-        tests:
-          - not_null
-          - unique
-
+        description: "Source identifier of the QR code (page ID or fixed slug hash)."
+        tests: [not_null, unique]
       - name: qr_code_id
-        description: "ID used as the primary identifier for the QR code (duplicate of source_id)."
-        tests:
-          - not_null
-          - unique
-
+        description: "QR code ID corresponding to the source content (same as source_id)."
       - name: source_table
-        description: "Name of the source table ('project', 'project_page2', etc.) from which the QR code content originates."
-        tests:
-          - not_null
-
+        description: "Source table from which the content originates (project, project_page2, etc.)."
       - name: content_slug
-        description: "Slug (URL path segment) of the QR code content."
-        tests:
-          - not_null
-
+        description: "Slug used in the URL for the QR code target."
       - name: content_title
-        description: "Title of the QR code content."
-
+        description: "Title of the QR code target page."
       - name: brand_id_final
-        description: "Final brand ID associated with the QR code content."
-
+        description: "Resolved final brand ID associated with the QR code."
       - name: art_show_id_final
-        description: "Final art show ID linked to the QR code content."
-
+        description: "Resolved final art show ID associated with the QR code."
       - name: event_id_final
-        description: "Final event ID connected to the QR code content."
-
+        description: "Resolved final event ID associated with the QR code."
       - name: artist_id
-        description: "ID of the artist associated with the QR code content."
-
+        description: "Resolved artist ID associated with the QR code."
       - name: display_post_id
-        description: "WordPress post ID of the page where the QR code display is published."
-
+        description: "Post ID of the WordPress display page if linked."
       - name: display_post_title
-        description: "Title of the WordPress page linked to the QR code display."
-
+        description: "Title of the WordPress display page."
       - name: display_post_slug
-        description: "Slug (URL path segment) of the WordPress page displaying the QR code."
-
+        description: "Slug of the WordPress display page."
       - name: display_post_type
-        description: "Post type of the WordPress page where the QR code is displayed (typically 'page')."
-
+        description: "Post type of the WordPress page (typically 'page')."
       - name: display_post_date
-        description: "Publication date of the WordPress page displaying the QR code."
+        description: "Publication date of the WordPress display page."

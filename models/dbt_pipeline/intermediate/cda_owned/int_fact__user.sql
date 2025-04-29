@@ -46,11 +46,31 @@ anonymous_sessions AS (
 
 ),
 
+anonymous_instagram_users AS (
+
+    SELECT
+        ig_user_id AS user_id,
+        'anonymous' AS login_platform,
+        CAST(NULL AS STRING) AS email,
+        'cda_api.instagram' AS source_table,
+        CAST(NULL AS STRING) AS first_name,
+        CAST(NULL AS STRING) AS last_name,
+        CAST(NULL AS STRING) AS country,
+        FORMAT_TIMESTAMP('%F %H:%M', CURRENT_TIMESTAMP()) AS ingested_at
+    FROM {{ ref('int_fact_ig__interaction') }}
+    WHERE ig_user_id IS NOT NULL
+      AND ig_user_id NOT IN (SELECT user_id FROM base_logins)
+      AND ig_user_id NOT IN (SELECT user_id FROM anonymous_sessions)
+
+),
+
 unioned_users AS (
 
     SELECT * FROM base_logins
     UNION ALL
     SELECT * FROM anonymous_sessions
+    UNION ALL
+    SELECT * FROM anonymous_instagram_users
 
 ),
 
@@ -64,7 +84,7 @@ deduplicated_users AS (
         MAX(first_name)             AS first_name,
         MAX(last_name)              AS last_name,
         MAX(country)                AS country,
-        MAX(ingested_at)            AS ingested_at
+        MAX(ingested_at)             AS ingested_at
     FROM unioned_users
     GROUP BY user_id
 

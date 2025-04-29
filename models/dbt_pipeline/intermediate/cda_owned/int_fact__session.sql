@@ -35,8 +35,39 @@ WITH base_session AS (
 
     FROM {{ ref('stg__session') }}
 
+),
+
+session_with_brand_fix AS (
+
+    SELECT
+        base.session_id,
+        base.source_platform,
+        base.session_source_url,
+        base.user_id,
+        
+        -- Prefer original brand_id if present, fallback to QR code brand_id
+        COALESCE(base.brand_id, qr.brand_id_final) AS brand_id,
+        
+        -- Extra QR info
+        qr.artist_id,
+        qr.art_show_id_final,
+        qr.event_id_final,
+        
+        base.device,
+        base.geo_ip,
+        base.geo_name,
+        base.started_at,
+        base.ended_at,
+
+        -- Flag unmapped sessions
+        CASE WHEN COALESCE(base.brand_id, qr.brand_id_final) IS NULL THEN TRUE ELSE FALSE END AS is_unmapped_session
+
+    FROM base_session AS base
+    LEFT JOIN {{ ref('int_qr_code__unified') }} AS qr
+        ON base.session_source_url = qr.content_slug
+
 )
 
 SELECT
     *
-FROM base_session
+FROM session_with_brand_fix

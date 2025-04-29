@@ -68,6 +68,10 @@ models:
       - name: interaction_id
         description: "Interaction ID (shortened and hashed)."
         tests: [not_null, unique]
+      - name: user_id
+        description: "Unified user ID associated with the interaction (derived from session_id or ig_user_id)."
+      - name: session_id
+        description: "Session ID if interaction came from website platform."
       - name: ig_user_id
         description: "Instagram user ID associated with the interaction (if any)."
       - name: page_id
@@ -141,6 +145,8 @@ models:
         description: "Publication date of the display post."
       - name: event_timestamp
         description: "Timestamp of the interaction (if applicable)."
+      - name: session_id
+        description: "Session ID associated with the website interaction if available."
 
   - name: int_fact__art_show
     description: "Aggregated fact table of art shows extracted from project and page content."
