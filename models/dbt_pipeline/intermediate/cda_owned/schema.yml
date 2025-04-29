@@ -7,13 +7,17 @@ models:
     columns:
       - name: session_id
         description: "Shortened SHA256-hashed session identifier."
-        tests: [not_null, unique]
+        tests: 
+          - not_null
+          - unique
+          - relationships:
+              to: ref('int_fact__session')
+              field: session_id
       - name: user_id
         description: "Unified user ID derived from login or session ID."
         tests:
           - not_null
           - relationships:
-              name: fk_user_id_fact_session
               to: ref('int_fact__user')
               field: user_id
       - name: source_platform
@@ -38,7 +42,9 @@ models:
     columns:
       - name: user_id
         description: "Shortened and hashed user ID."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
       - name: login_platform
         description: "Platform where the user login or interaction was detected (e.g., helloasso, wordpress, anonymous, etc.)."
       - name: email
@@ -67,9 +73,15 @@ models:
     columns:
       - name: interaction_id
         description: "Interaction ID (shortened and hashed)."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
       - name: user_id
         description: "Unified user ID associated with the interaction (derived from session_id or ig_user_id)."
+        tests:
+          - relationships:
+              to: ref('int_fact__user')
+              field: user_id
       - name: session_id
         description: "Session ID if interaction came from website platform."
       - name: ig_user_id
@@ -88,13 +100,25 @@ models:
         description: "Timestamp when the interaction occurred (formatted '%F %H:%M')."
       - name: source_platform
         description: "Origin platform of the interaction (website or Instagram)."
+      - name: scan_id
+        description: "Scan ID derived from QR session, if applicable."
+        tests:
+          - relationships:
+              to: ref('int_qr_code__scan')
+              field: scan_id
+      - name: is_unmapped_scan  
+        description: "Boolean flag indicating if the QR scan could not be mapped to a known page."
+      - name: via_qr_scan  
+        description: "Boolean flag indicating if the interaction came via a QR code scan."
 
   - name: int_fact__interaction_unified
     description: "Unified interaction view merging website and Instagram interactions, deduplicated by interaction ID."
     columns:
       - name: interaction_id
         description: "Unique interaction ID."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
       - name: ig_user_id
         description: "Instagram user ID if the interaction originated from Instagram."
       - name: page_id
@@ -153,7 +177,9 @@ models:
     columns:
       - name: art_show_id
         description: "Unique identifier assigned to each art show."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
       - name: created_at
         description: "Earliest creation timestamp of any linked project/page."
       - name: modified_at
@@ -166,7 +192,9 @@ models:
     columns:
       - name: artist_id
         description: "Unique identifier for each artist."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
       - name: artist_name
         description: "Name of the artist (taken from project/page title)."
       - name: created_at
@@ -179,7 +207,9 @@ models:
     columns:
       - name: brand_id
         description: "Unique identifier assigned to each brand."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
       - name: brand_name
         description: "Name of the brand."
       - name: created_at
@@ -192,7 +222,9 @@ models:
     columns:
       - name: event_attendance_id
         description: "Primary key for event attendance record."
-        tests: [not_null, unique]
+        tests:
+          - not_null
+          - unique
       - name: event_id
         description: "Linked event ID."
       - name: user_id
