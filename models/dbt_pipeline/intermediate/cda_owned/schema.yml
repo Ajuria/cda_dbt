@@ -3,206 +3,193 @@ version: 2
 models:
 
   - name: int_fact__session
-    description: "Final session fact table with deduplicated user IDs, metadata, and campaign codes."
+    description: "Fact table for website sessions with hashed session IDs, associated user IDs, device and geo metadata, and session timing information."
     columns:
       - name: session_id
-        description: "Shortened SHA256 session identifier."
+        description: "Shortened SHA256-hashed session identifier."
+        tests: [not_null, unique]
       - name: user_id
-        description: "Unified user ID (fallback to session-based ID if unknown)."
+        description: "Unified user ID derived from login or session ID."
         tests:
+          - not_null
           - relationships:
               name: fk_user_id_fact_session
               to: ref('int_fact__user')
               field: user_id
       - name: source_platform
-        description: "Platform where the session originated (e.g., cda_website, instagram, etc.)."
+        description: "Platform where the session originated (e.g., cda_website, third_party_website, instagram, etc.)."
       - name: session_source_url
-        description: "Cleaned URL that initiated the session (relative path)."
-      - name: started_at
-        description: "Session start timestamp, formatted without seconds."
-      - name: ended_at
-        description: "Session end timestamp, formatted without seconds."
-      - name: device
-        description: "Device used in the session (browser, mobile, etc.)."
-      - name: geo_ip
-        description: "IP address of the user during the session."
-      - name: geo_name
-        description: "Location name resolved from IP."
+        description: "URL or source of session initiation if available."
       - name: brand_id
-        description: "Associated brand_id if session originated from a branded action (optional)."
+        description: "Associated brand ID if linked to the session."
+      - name: device
+        description: "Device type used during the session."
+      - name: geo_ip
+        description: "IP address recorded during the session."
+      - name: geo_name
+        description: "Geolocation name derived from IP."
+      - name: started_at
+        description: "Session start timestamp (formatted '%F %H:%M:00')."
+      - name: ended_at
+        description: "Session end timestamp (formatted '%F %H:%M:00')."
 
   - name: int_fact__user
-    description: "Unified user table deduplicating logins from all platforms (HelloAsso, WordPress, Facebook, Instagram, Anonymous)."
+    description: "Unified user fact table aggregating logins from multiple platforms and deduplicated by user ID."
     columns:
       - name: user_id
-        description: "Shortened and hashed user ID, platform-dependent."
+        description: "Shortened and hashed user ID."
         tests: [not_null, unique]
       - name: login_platform
-        description: "Source platform where the user was authenticated or detected (e.g., helloasso, wordpress, facebook, etc.)."
+        description: "Platform where the user login or interaction was detected (e.g., helloasso, wordpress, anonymous, etc.)."
       - name: email
-        description: "User email address if known."
+        description: "Email address of the user if available."
       - name: source_table
-        description: "Source table from which the user record originated."
+        description: "Source table where the user information originated."
       - name: first_name
-        description: "First name of the user if available."
+        description: "First name of the user if known."
       - name: last_name
-        description: "Last name of the user if available."
+        description: "Last name of the user if known."
       - name: country
-        description: "Country associated with the user if available."
+        description: "Country of origin of the user if available."
       - name: user_type_id
-        description: "Optional user classification (visitor_guest, visitor_premium, etc.)."
+        description: "User type classification if assigned."
       - name: created_at
-        description: "Timestamp when the user was created in the original platform."
+        description: "Timestamp when the user was created in the original system."
       - name: updated_at
-        description: "Timestamp when the user was last updated."
+        description: "Timestamp when the user record was last updated."
       - name: ingested_at
-        description: "Ingestion timestamp of the user record into the system."
+        description: "Timestamp when the user data was ingested into the system."
       - name: gender
-        description: "Gender inferred manually for a small set of known user_ids."
+        description: "Manually assigned gender for selected known user IDs."
 
   - name: int_fact__interaction
-    description: "Unified interaction events across all platforms."
+    description: "Fact table for website and Instagram interactions, listing detailed interaction metadata."
     columns:
       - name: interaction_id
-        description: "Shortened hashed interaction ID."
+        description: "Interaction ID (shortened and hashed)."
         tests: [not_null, unique]
       - name: ig_user_id
-        description: "Instagram user ID if the interaction is from Instagram."
+        description: "Instagram user ID associated with the interaction (if any)."
       - name: page_id
-        description: "Page ID if applicable (Instagram page/post)."
+        description: "Page ID related to the interaction, if applicable."
       - name: username
-        description: "Username of the social media profile."
+        description: "Username associated with the interaction."
       - name: permalink
-        description: "Permalink to the post or interaction."
+        description: "Permanent link to the post or content interacted with."
       - name: media_url
-        description: "URL of the media involved in the interaction."
+        description: "URL of the media associated with the interaction."
       - name: ig_content_type
-        description: "Type of Instagram content (image, video, carousel)."
+        description: "Type of Instagram content involved (image, video, etc.)."
       - name: event_timestamp
-        description: "Timestamp when the interaction occurred (formatted without seconds)."
+        description: "Timestamp when the interaction occurred (formatted '%F %H:%M')."
       - name: source_platform
         description: "Origin platform of the interaction (website or Instagram)."
 
   - name: int_fact__interaction_unified
-    description: "Deduplicated view of all interactions, with IG and Website interactions merged."
+    description: "Unified interaction view merging website and Instagram interactions, deduplicated by interaction ID."
     columns:
       - name: interaction_id
-        description: "Shortened hashed interaction ID."
+        description: "Unique interaction ID."
+        tests: [not_null, unique]
       - name: ig_user_id
-        description: "Instagram user ID."
+        description: "Instagram user ID if the interaction originated from Instagram."
       - name: page_id
-        description: "Page ID associated to the interaction."
+        description: "Page ID linked to the interaction if available."
       - name: username
-        description: "Username involved in the interaction."
+        description: "Username linked to the interaction."
       - name: permalink
-        description: "Link to the social media post."
+        description: "Permanent link to the related post or interaction."
       - name: media_url
-        description: "URL to the media."
+        description: "Media URL associated with the interaction."
       - name: ig_content_type
-        description: "Type of content on Instagram."
+        description: "Type of Instagram content involved."
       - name: event_timestamp
-        description: "Timestamp when the interaction occurred (formatted)."
+        description: "Timestamp of interaction (formatted '%F %H:%M')."
       - name: source_platform
-        description: "Platform source of interaction."
+        description: "Platform from which the interaction originated."
 
   - name: int_fact__interaction_website
-    description: "Website-based interactions and QR enrichments."
+    description: "Fact table for website-based interactions and QR-code enrichments."
     columns:
       - name: source_id
-        description: "Original source ID."
+        description: "Source identifier from QR content or web page."
       - name: qr_code_id
-        description: "QR Code ID if enriched from a QR scan."
+        description: "QR code ID if related to a QR event."
       - name: source_table
-        description: "Origin table of the page or interaction."
+        description: "Source table (project, project_page2, fixed_page, etc.)."
       - name: content_slug
-        description: "Slug of the website content."
+        description: "Slug of the web page or QR code target."
       - name: content_title
-        description: "Title of the page or post."
+        description: "Title of the page or QR target."
       - name: brand_id_final
-        description: "Final resolved brand ID."
+        description: "Final resolved brand ID associated with the interaction."
       - name: art_show_id_final
-        description: "Final resolved art show ID."
+        description: "Final resolved art show ID associated with the interaction."
       - name: event_id_final
-        description: "Final resolved event ID."
+        description: "Final resolved event ID associated with the interaction."
       - name: artist_id
-        description: "Artist ID if mapped."
+        description: "Artist ID associated with the interaction if available."
       - name: display_post_id
-        description: "Display post ID if matched."
+        description: "Display post ID from WordPress if applicable."
       - name: display_post_title
-        description: "Title of the display post."
+        description: "Display post title from WordPress."
       - name: display_post_slug
         description: "Slug of the display post."
       - name: display_post_type
-        description: "Type of display post (article, event, etc.)."
+        description: "Post type (page) of the display."
       - name: display_post_date
-        description: "Date of the display post."
+        description: "Publication date of the display post."
       - name: event_timestamp
-        description: "Timestamp when the interaction occurred."
-
-  - name: int_fact__ig__interaction
-    description: "Instagram interactions extracted from the Meta Business API."
-    columns:
-      - name: ig_interaction_id
-        description: "Original interaction ID from Instagram."
-      - name: ig_user_id
-        description: "Instagram user ID."
-      - name: page_id
-        description: "Page ID."
-      - name: username
-        description: "Instagram username."
-      - name: permalink
-        description: "Link to Instagram post."
-      - name: media_url
-        description: "Media URL."
-      - name: ig_content_type
-        description: "Type of content posted."
-      - name: event_timestamp
-        description: "Event timestamp."
+        description: "Timestamp of the interaction (if applicable)."
 
   - name: int_fact__art_show
-    description: "Aggregated view of art shows from portfolio pages."
+    description: "Aggregated fact table of art shows extracted from project and page content."
     columns:
       - name: art_show_id
-        description: "Unique identifier for each art show."
+        description: "Unique identifier assigned to each art show."
+        tests: [not_null, unique]
       - name: created_at
-        description: "Creation timestamp."
+        description: "Earliest creation timestamp of any linked project/page."
       - name: modified_at
-        description: "Last modification timestamp."
+        description: "Most recent modification timestamp of any linked project/page."
       - name: art_show_title
-        description: "Title of the art show."
+        description: "Title of the art show (sampled from associated pages)."
 
   - name: int_fact__artist
-    description: "Artist registry extracted from the portfolio pages."
+    description: "Fact table of artists extracted from project and page data."
     columns:
       - name: artist_id
         description: "Unique identifier for each artist."
+        tests: [not_null, unique]
       - name: artist_name
-        description: "Artist's display name."
+        description: "Name of the artist (taken from project/page title)."
       - name: created_at
-        description: "Creation date."
+        description: "Earliest creation timestamp linked to the artist."
       - name: modified_at
-        description: "Last update date."
+        description: "Most recent modification timestamp linked to the artist."
 
   - name: int_fact__brand
-    description: "Brand pages and partners extracted from the portfolio projects."
+    description: "Fact table of brands extracted from project and page content."
     columns:
       - name: brand_id
-        description: "Unique brand identifier."
+        description: "Unique identifier assigned to each brand."
+        tests: [not_null, unique]
       - name: brand_name
-        description: "Brand or partner name."
+        description: "Name of the brand."
       - name: created_at
-        description: "Creation date."
+        description: "Earliest creation timestamp linked to the brand."
       - name: modified_at
-        description: "Last update date."
+        description: "Most recent modification timestamp linked to the brand."
 
   - name: int_fact__event__art_time
-    description: "Event attendance log for art events."
+    description: "Fact table logging event attendance for art events."
     columns:
       - name: event_attendance_id
-        description: "Primary key for event attendance."
+        description: "Primary key for event attendance record."
+        tests: [not_null, unique]
       - name: event_id
         description: "Linked event ID."
       - name: user_id
-        description: "User ID attending the event."
+        description: "User ID of the attendee."
       - name: attended_at
-        description: "Timestamp when attendance was recorded."
+        description: "Formatted timestamp when attendance was registered ('%F %T')."

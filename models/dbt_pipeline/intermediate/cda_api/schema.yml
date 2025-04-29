@@ -3,203 +3,224 @@ version: 2
 models:
 
   - name: int_fact_ha__payment
-    description: "Normalizes HelloAsso payments and maps known payer genders for analytics."
+    description: "Normalized HelloAsso payment records with mapped genders for selected known users."
     columns:
       - name: payment_id
-        description: "Unique HelloAsso payment ID."
+        description: "Unique HelloAsso payment identifier."
         tests: [not_null, unique]
       - name: user_id
-        description: "Hashed user ID generated from payer email."
+        description: "Shortened and hashed user ID generated from payer email."
         tests: [not_null]
       - name: amount
-        description: "Payment amount in euros."
+        description: "Payment amount in euros, cast as FLOAT64."
       - name: payment_status
-        description: "Payment status (e.g. succeeded, refunded)."
+        description: "Status of the payment (e.g., succeeded, refunded)."
       - name: payment_date
-        description: "Formatted timestamp when the payment was made."
+        description: "Formatted payment timestamp (format '%F %H:%M')."
       - name: payment_type
-        description: "Payment source type (fixed: 'helloasso')."
+        description: "Fixed payment source type ('helloasso')."
       - name: payer_email
-        description: "Original payer email address."
+        description: "Original email address of the payer."
       - name: payer_first_name
-        description: "Payer's first name from HelloAsso data."
+        description: "First name of the payer."
       - name: payer_last_name
-        description: "Payer's last name from HelloAsso data."
+        description: "Last name of the payer."
       - name: payer_country
-        description: "Country of payer at the time of payment."
+        description: "Country of the payer at the time of transaction."
       - name: payer_gender
-        description: "Mapped gender based on user_id (optional enrichment)."
+        description: "Gender mapped manually for known user IDs (optional field)."
 
   - name: int_fact_ig__account
-    description: "Deduplicated Instagram account information for the brand."
+    description: "Deduplicated snapshot of Instagram account metadata for monitored pages."
     columns:
       - name: account_id
-        description: "Unique ID of the Instagram account."
+        description: "Unique identifier of the Instagram account."
         tests: [not_null, unique]
       - name: name
-        description: "Name of the Instagram profile."
+        description: "Public name of the Instagram profile."
       - name: ig_id
-        description: "Instagram internal user ID."
+        description: "Internal Instagram user ID."
       - name: page_id
-        description: "Linked Facebook Page ID."
+        description: "Associated Facebook Page ID."
       - name: website
-        description: "External website listed in profile."
+        description: "Website URL listed in the Instagram profile."
       - name: username
-        description: "Instagram username (handle)."
+        description: "Instagram handle (username)."
       - name: biography
-        description: "Biography or description from the Instagram profile."
+        description: "Profile biography text."
       - name: media_count
         description: "Total number of posts on the account."
       - name: follows_count
-        description: "Number of accounts followed by this account."
+        description: "Total number of accounts followed by this profile."
       - name: followers_count
-        description: "Number of followers."
+        description: "Total number of followers."
       - name: profile_picture_url
-        description: "Profile picture URL."
+        description: "Profile picture URL of the account."
       - name: inserted_at
-        description: "Timestamp when the record was inserted."
+        description: "Timestamp when the record was inserted (format '%F %H:%M')."
+
+  - name: int_fact_ig__interaction
+    description: "Fact table of Instagram media and story interactions, combining media and story content types."
+    columns:
+      - name: ig_interaction_id
+        description: "Shortened hashed interaction identifier (media or story)."
+        tests: [not_null, unique]
+      - name: ig_user_id
+        description: "Instagram user ID associated with the interaction."
+      - name: page_id
+        description: "Facebook Page ID linked to the interaction."
+      - name: username
+        description: "Instagram username involved in the interaction."
+      - name: permalink
+        description: "Permanent link to the media or story post."
+      - name: media_url
+        description: "URL of the media or story content."
+      - name: event_timestamp
+        description: "Timestamp when the interaction occurred."
+      - name: ig_content_type
+        description: "Type of Instagram content ('media' or 'story')."
 
   - name: int_fact_ig__stories_with_insights
-    description: "Combined view of Instagram stories and associated insights."
+    description: "Combined Instagram story data with associated story insights."
     columns:
       - name: id
         description: "Unique ID of the Instagram story."
         tests: [not_null, unique]
       - name: ig_id
-        description: "Instagram internal ID of the story."
+        description: "Instagram internal user ID for the story."
       - name: owner_id
-        description: "ID of the account that posted the story."
+        description: "Account owner ID who posted the story."
       - name: caption
-        description: "Story caption or text (if available)."
+        description: "Caption text of the story if available."
       - name: page_id
-        description: "Facebook Page ID associated with the story."
+        description: "Associated Facebook Page ID."
       - name: username
-        description: "Instagram username who posted the story."
+        description: "Username who posted the story."
       - name: media_url
-        description: "URL to the story media."
+        description: "URL of the story media."
       - name: permalink
         description: "Link to view the story."
       - name: shortcode
-        description: "Short URL code for the story."
+        description: "Shortcode for the story permalink."
       - name: timestamp
-        description: "Timestamp when the story was posted."
+        description: "Posting timestamp of the story."
       - name: like_count
-        description: "Number of likes on the story."
+        description: "Number of likes (if applicable)."
       - name: media_type
-        description: "Type of media (IMAGE, VIDEO, etc.)."
+        description: "Type of media (e.g., IMAGE, VIDEO)."
       - name: thumbnail_url
-        description: "Thumbnail URL if applicable."
+        description: "Thumbnail image URL for the story."
       - name: media_product_type
-        description: "Product type (e.g., feed, reels, story)."
+        description: "Product type (feed, story, reels, etc.)."
       - name: business_account_id
-        description: "Associated business account ID."
+        description: "Business account ID associated with the story."
       - name: reach
-        description: "Number of accounts reached."
+        description: "Number of unique accounts reached by the story."
       - name: shares
         description: "Number of times the story was shared."
       - name: follows
-        description: "Number of follows resulting from the story."
+        description: "Number of follows generated from the story."
       - name: replies
-        description: "Number of replies to the story."
+        description: "Number of replies received on the story."
       - name: profile_visits
-        description: "Profile visits from the story."
+        description: "Number of profile visits from the story."
       - name: total_interactions
-        description: "Total interactions generated by the story."
+        description: "Sum of all interactions generated by the story."
 
   - name: int_fact_ig__user_daily_metrics
-    description: "Daily Instagram user insights metrics deduplicated per page and day."
+    description: "Deduplicated daily user-level Instagram metrics for each page."
     columns:
       - name: insight_date
-        description: "Date when the metrics were collected."
+        description: "Date the metrics were recorded."
         tests: [not_null]
       - name: page_id
         description: "Associated Facebook Page ID."
       - name: reach
-        description: "Number of accounts reached on the day."
+        description: "Daily reach (unique accounts reached)."
       - name: reach_week
-        description: "Cumulative reach over the past week."
+        description: "Reach cumulative over the past week."
       - name: reach_days_28
-        description: "Cumulative reach over the past 28 days."
+        description: "Reach cumulative over the past 28 days."
       - name: follower_count
-        description: "Total number of followers."
+        description: "Total number of followers at the end of the day."
       - name: online_followers_value
-        description: "Peak number of online followers (if available)."
+        description: "Peak number of online followers recorded during the day."
       - name: business_account_id
-        description: "ID of the associated business account."
+        description: "Business account ID associated with the page."
 
   - name: int_fact_ig__user_lifetime_metrics
-    description: "Latest available lifetime Instagram user metrics per breakdown (country, gender, etc.)."
+    description: "Aggregated lifetime Instagram metrics broken down by dimensions such as gender or country."
     columns:
       - name: metric
-        description: "Name of the metric (e.g., impressions, reach)."
+        description: "Name of the lifetime metric (e.g., impressions, reach)."
         tests: [not_null]
       - name: breakdown
-        description: "Breakdown dimension (e.g., country, gender)."
+        description: "Breakdown category (gender, country, etc.)."
         tests: [not_null]
       - name: metric_value
-        description: "Numeric value for the metric."
+        description: "Recorded numeric value for the lifetime metric."
       - name: date
-        description: "Timestamp when the metric was last recorded."
-      - name: business_account_id
-        description: "ID of the associated business account."
-
-  - name: int_ig__media_with_insights
-    description: "Merged Instagram media posts enriched with media insights."
-    columns:
-      - name: id
-        description: "Unique ID of the Instagram media post."
-        tests: [not_null, unique]
-      - name: ig_id
-        description: "Instagram internal ID for the media."
-      - name: caption
-        description: "Caption text of the media."
-      - name: page_id
-        description: "Facebook Page ID associated with the media."
-      - name: owner_id
-        description: "Owner ID of the media."
-      - name: first_child_id
-        description: "ID of the first child media (for carousels)."
-      - name: username
-        description: "Username of the media poster."
-      - name: media_url
-        description: "URL to access the media content."
-      - name: permalink
-        description: "Permalink to view the post."
-      - name: shortcode
-        description: "Short link for the media post."
-      - name: timestamp
-        description: "Date and time the media was posted."
-      - name: like_count
-        description: "Number of likes received."
-      - name: media_type
-        description: "Type of media (IMAGE, VIDEO, CAROUSEL)."
-      - name: thumbnail_url
-        description: "Thumbnail image URL."
-      - name: comments_count
-        description: "Total number of comments."
-      - name: is_comment_enabled
-        description: "Whether comments are enabled."
-      - name: media_product_type
-        description: "Product type (e.g., feed, reels, story)."
+        description: "Timestamp when the metric was processed/formatted."
       - name: business_account_id
         description: "Associated business account ID."
+
+  - name: int_ig__media_with_insights
+    description: "Merged Instagram media posts with corresponding detailed media insights."
+    columns:
+      - name: id
+        description: "Unique identifier of the Instagram media."
+        tests: [not_null, unique]
+      - name: ig_id
+        description: "Instagram internal ID linked to the media."
+      - name: caption
+        description: "Caption text associated with the media."
+      - name: page_id
+        description: "Facebook Page ID associated with the media post."
+      - name: owner_id
+        description: "Owner ID of the media post."
+      - name: first_child_id
+        description: "First child media ID for carousel media."
+      - name: username
+        description: "Username who published the media."
+      - name: media_url
+        description: "URL to the media content."
+      - name: permalink
+        description: "Permalink URL to the post."
+      - name: shortcode
+        description: "Short link shortcode for the post."
+      - name: timestamp
+        description: "Datetime when the media was posted."
+      - name: like_count
+        description: "Number of likes on the media post."
+      - name: media_type
+        description: "Type of the media (IMAGE, VIDEO, CAROUSEL)."
+      - name: thumbnail_url
+        description: "Thumbnail URL for the media."
+      - name: comments_count
+        description: "Number of comments on the media."
+      - name: is_comment_enabled
+        description: "Whether commenting is enabled on the media."
+      - name: media_product_type
+        description: "Type of product (feed post, story, reels)."
+      - name: business_account_id
+        description: "Business account ID associated with the media."
       - name: likes
-        description: "Total likes (metric)."
+        description: "Number of likes from insights data."
       - name: reach
-        description: "Reach metric for the media."
+        description: "Reach metric value from insights."
       - name: saved
-        description: "Number of times media was saved."
+        description: "Number of times the media was saved."
       - name: shares
-        description: "Number of shares."
+        description: "Number of times the media was shared."
       - name: follows
-        description: "Number of follows resulting from the media."
+        description: "Number of follows generated from the media."
       - name: comments
-        description: "Comments count from insights."
+        description: "Comment count from insights."
       - name: profile_visits
-        description: "Profile visits generated by the media."
+        description: "Profile visits resulting from the media."
       - name: total_interactions
-        description: "Total interactions generated by the media."
+        description: "Sum of all interactions with the media."
       - name: ig_reels_avg_watch_time
-        description: "Average watch time for Reels."
+        description: "Average watch time for reels (if applicable)."
       - name: ig_reels_video_view_total_time
-        description: "Total view time for Reels."
+        description: "Total view time for reels (if applicable)."
