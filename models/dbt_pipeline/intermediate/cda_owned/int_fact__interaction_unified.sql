@@ -1,6 +1,6 @@
 {{ config(materialized='view') }}
 
-WITH base_website_interaction AS (
+WITH website_interactions AS (
 
     SELECT
         source_id AS interaction_id,
@@ -13,11 +13,10 @@ WITH base_website_interaction AS (
         event_timestamp,
         'website' AS source_platform
     FROM {{ ref('int_fact__interaction_website') }}
-    WHERE source_id IS NOT NULL -- 👈 Corrige NULL
 
 ),
 
-base_ig_interaction AS (
+instagram_interactions AS (
 
     SELECT
         ig_interaction_id AS interaction_id,
@@ -30,15 +29,14 @@ base_ig_interaction AS (
         FORMAT_TIMESTAMP('%F %H:%M', CAST(event_timestamp AS TIMESTAMP)) AS event_timestamp,
         'instagram' AS source_platform
     FROM {{ ref('int_fact_ig__interaction') }}
-    WHERE ig_interaction_id IS NOT NULL -- 👈 Corrige NULL aussi
 
 ),
 
 all_interactions AS (
 
-    SELECT * FROM base_website_interaction
+    SELECT * FROM website_interactions
     UNION ALL
-    SELECT * FROM base_ig_interaction
+    SELECT * FROM instagram_interactions
 
 )
 
@@ -53,4 +51,6 @@ SELECT
     event_timestamp,
     source_platform
 FROM all_interactions
-QUALIFY ROW_NUMBER() OVER (PARTITION BY interaction_id ORDER BY event_timestamp DESC) = 1 -- 👈 Corrige doublons
+WHERE interaction_id IS NOT NULL
+QUALIFY ROW_NUMBER() OVER (PARTITION BY interaction_id ORDER BY event_timestamp DESC) = 1
+

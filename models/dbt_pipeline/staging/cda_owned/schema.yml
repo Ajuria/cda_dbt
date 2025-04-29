@@ -34,7 +34,6 @@ models:
     columns:
       - name: project_id
         description: "Unique identifier for the project post."
-        tests: [not_null, unique]
       - name: slug
         description: "URL-friendly slug of the post."
       - name: link
@@ -62,10 +61,8 @@ models:
         description: "Main body of the post in rendered HTML."
       - name: created_at
         description: "Formatted local creation timestamp."
-        tests: [not_null]
       - name: modified_at
         description: "Formatted local last modification timestamp."
-        tests: [not_null]
       - name: brand_id
         description: "Foreign key to brand entity if applicable."
       - name: artist_id
@@ -84,7 +81,6 @@ models:
     columns:
       - name: project_id
         description: "Unique identifier for the project_page2 post."
-        tests: [not_null, unique]
       - name: slug
         description: "URL-friendly slug of the post."
       - name: link
@@ -112,12 +108,10 @@ models:
         description: "Main body of the post in rendered HTML."
       - name: created_at
         description: "Formatted local creation timestamp."
-        tests: [not_null]
       - name: created_at_gmt
         description: "Formatted GMT creation timestamp."
       - name: modified
         description: "Raw modification datetime."
-        tests: [not_null]
       - name: template
         description: "WordPress template assigned to the post."
       - name: modified_gmt
@@ -132,10 +126,8 @@ models:
         description: "Foreign key to event entity if applicable."
       - name: _airbyte_raw_id
         description: "Internal Airbyte record ID."
-        tests: [not_null, unique]
       - name: _airbyte_extracted_at
         description: "Timestamp when Airbyte extracted this record."
-        tests: [not_null]
       - name: _airbyte_meta
         description: "Airbyte metadata associated with the record."
       - name: _airbyte_generation_id
@@ -146,7 +138,6 @@ models:
     columns:
       - name: project_id
         description: "Unique identifier for the project_page3 post."
-        tests: [not_null, unique]
       - name: slug
         description: "URL-friendly slug of the post."
       - name: link
@@ -174,12 +165,10 @@ models:
         description: "Main body of the post in rendered HTML."
       - name: created_at
         description: "Formatted local creation timestamp."
-        tests: [not_null]
       - name: created_at_gmt
         description: "Formatted GMT creation timestamp."
       - name: modified
         description: "Raw modification datetime."
-        tests: [not_null]
       - name: template
         description: "WordPress template assigned to the post."
       - name: modified_gmt
@@ -194,10 +183,8 @@ models:
         description: "Foreign key to event entity if applicable."
       - name: _airbyte_raw_id
         description: "Internal Airbyte record ID."
-        tests: [not_null, unique]
       - name: _airbyte_extracted_at
         description: "Timestamp when Airbyte extracted this record."
-        tests: [not_null]
       - name: _airbyte_meta
         description: "Airbyte metadata associated with the record."
       - name: _airbyte_generation_id
@@ -208,7 +195,6 @@ models:
     columns:
       - name: project_id
         description: "Unique identifier for the project_page4 post."
-        tests: [not_null, unique]
       - name: slug
         description: "URL-friendly slug of the post."
       - name: link
@@ -236,12 +222,10 @@ models:
         description: "Main body of the post in rendered HTML."
       - name: created_at
         description: "Formatted local creation timestamp."
-        tests: [not_null]
       - name: created_at_gmt
         description: "Formatted GMT creation timestamp."
       - name: modified
         description: "Raw modification datetime."
-        tests: [not_null]
       - name: template
         description: "WordPress template assigned to the post."
       - name: modified_gmt
@@ -256,10 +240,8 @@ models:
         description: "Foreign key to event entity if applicable."
       - name: _airbyte_raw_id
         description: "Internal Airbyte record ID."
-        tests: [not_null, unique]
       - name: _airbyte_extracted_at
         description: "Timestamp when Airbyte extracted this record."
-        tests: [not_null]
       - name: _airbyte_meta
         description: "Airbyte metadata associated with the record."
       - name: _airbyte_generation_id

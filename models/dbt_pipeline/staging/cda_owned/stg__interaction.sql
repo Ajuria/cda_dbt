@@ -13,11 +13,27 @@ WITH cleaned AS (
       ''
     ) AS cda_website_source,
 
+    -- 🛠 Add slug_cleaned inside cleaned
+    REGEXP_REPLACE(
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(LOWER(TRIM(NULLIF(
+          REGEXP_REPLACE(
+            REGEXP_REPLACE(source_url, r'^https://costieresdelart\.fr/', ''),
+            r'^category/', ''
+          ),
+          ''
+        ))), r'^(artistes/|evenements/|programme/|a-propos/|actualites/)', ''),
+        r'/$', ''  -- remove trailing slash
+      ),
+      r'\?.*$', ''  -- remove query params
+    ) AS slug_cleaned,
+
     session_id,
     target_id,
     user_id,
     social_media_action,
     timestamp,
+    details,
 
     -- Extract title or page_title from JSON details
     COALESCE(
@@ -29,13 +45,17 @@ WITH cleaned AS (
 )
 
 SELECT
-  FORMAT('%s', interaction_id) AS interaction_id,
+  -- Hash interaction_id to 16 chars
+  SUBSTR(TO_HEX(SHA256(CAST(interaction_id AS STRING))), 1, 16) AS interaction_id,
+
   source_platform,
   cda_website_source,
-  CAST(session_id AS STRING)   AS session_id,
-  target_id,
+  slug_cleaned,
 
-  -- user_id généré depuis user_id OU session_id si manquant
+  -- Hash session_id to 16 chars
+  SUBSTR(TO_HEX(SHA256(CAST(session_id AS STRING))), 1, 16) AS session_id,
+
+  -- Hash user_id or fallback on session_id, 16 chars
   SUBSTR(TO_HEX(SHA256(CAST(COALESCE(user_id, session_id) AS STRING))), 1, 16) AS user_id,
 
   social_media_action,

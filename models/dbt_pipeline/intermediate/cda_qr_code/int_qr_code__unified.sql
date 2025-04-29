@@ -3,37 +3,53 @@
 WITH base_qr_code_content AS (
 
     SELECT
-        project_id AS source_id,
+        page_id_final AS source_id,
         'project' AS source_table,
         slug AS content_slug,
-        title AS content_title
+        title AS content_title,
+        brand_id_final,
+        art_show_id_final,
+        event_id_final,
+        artist_id
     FROM {{ ref('stg_wp__project') }}
 
     UNION ALL
 
     SELECT
-        project_id AS source_id,
+        page_id_final AS source_id,
         'project_page2' AS source_table,
         slug AS content_slug,
-        title AS content_title
+        title AS content_title,
+        brand_id_final,
+        art_show_id_final,
+        event_id_final,
+        artist_id
     FROM {{ ref('stg_wp__project_page2') }}
 
     UNION ALL
 
     SELECT
-        project_id AS source_id,
+        page_id_final AS source_id,
         'project_page3' AS source_table,
         slug AS content_slug,
-        title AS content_title
+        title AS content_title,
+        brand_id_final,
+        art_show_id_final,
+        event_id_final,
+        artist_id
     FROM {{ ref('stg_wp__project_page3') }}
 
     UNION ALL
 
     SELECT
-        project_id AS source_id,
+        page_id_final AS source_id,
         'project_page4' AS source_table,
         slug AS content_slug,
-        title AS content_title
+        title AS content_title,
+        brand_id_final,
+        art_show_id_final,
+        event_id_final,
+        artist_id
     FROM {{ ref('stg_wp__project_page4') }}
 
 ),
@@ -52,9 +68,17 @@ base_qr_code_display AS (
 
 SELECT
     content.source_id,
+    content.source_id AS qr_code_id,
+
     content.source_table,
     content.content_slug,
     content.content_title,
+    
+    content.brand_id_final,
+    content.art_show_id_final,
+    content.event_id_final, 
+    content.artist_id,           
+
     display.display_post_id,
     display.display_post_title,
     display.display_post_slug,
